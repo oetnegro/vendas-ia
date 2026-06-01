@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+input,
+textarea,
+select {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.email-preview p {
+  margin: 0 0 0.75rem;
+}
+
+.email-preview a {
+  color: #f4d58d;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.email-preview strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.email-preview em {
+  font-style: italic;
+}
+
+.email-preview code {
+  border-radius: 0.25rem;
+  background: rgb(255 255 255 / 0.12);
+  padding: 0.125rem 0.25rem;
+}

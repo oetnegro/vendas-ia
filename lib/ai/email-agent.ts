@@ -1,0 +1,312 @@
+import type { Json } from '@/types/database'
+
+export type EmailAgentLead = {
+  email: string
+  first_name: string | null
+  last_name: string | null
+  company: string | null
+  title: string | null
+  custom_fields: Json
+}
+
+export type EmailAgentProfile = {
+  name: string
+  business_context: string | null
+  common_objections: string | null
+  campaign_goal: string | null
+}
+
+export type EmailAgentMessage = {
+  direction: 'inbound' | 'outbound'
+  subject: string | null
+  body_text: string | null
+  sent_at: string | null
+}
+
+export type EmailAgentDecision = {
+  action: 'reply' | 'skip' | 'opt_out'
+  intent:
+    | 'interested'
+    | 'objection'
+    | 'question'
+    | 'not_now'
+    | 'negative'
+    | 'opt_out'
+    | 'neutral'
+    | 'meeting'
+  confidence: number
+  summary: string
+  subject: string
+  body: string
+  lead_status: 'replied' | 'interested' | 'meeting_booked' | 'negative' | 'opted_out'
+  follow_up_days: number | null
+  meeting_start_iso?: string | null
+  meeting_end_iso?: string | null
+  reasoning: string
+}
+
+type GeminiResponse = {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        text?: string
+      }>
+    }
+  }>
+  error?: {
+    message?: string
+  }
+}
+
+function stringifyFields(value: Json) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return '{}'
+
+  return JSON.stringify(value, null, 2)
+}
+
+function normalizeSubject(subject: string | null | undefined) {
+  const cleaned = subject?.trim() || 'Retorno'
+  return /^re:/i.test(cleaned) ? cleaned : `Re: ${cleaned}`
+}
+
+function extractOutputText(json: GeminiResponse) {
+  return json.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n').trim() || ''
+}
+
+function fallbackDecision({
+  latestSubject,
+  latestInbound,
+}: {
+  latestSubject: string | null
+  latestInbound: string
+}): EmailAgentDecision {
+  const text = latestInbound.toLowerCase()
+  const wantsOut = /\b(remover|descadastrar|unsubscribe|pare|parar)\b/i.test(text)
+  const isNegative = /\b(nao quero|não quero|sem interesse|nao tenho interesse|não tenho interesse|negativo)\b/i.test(
+    text,
+  )
+  const wantsMeeting = /\b(reuniao|reunião|agenda|horario|horário|call|conversar)\b/i.test(text)
+
+  if (wantsOut) {
+    return {
+      action: 'opt_out',
+      intent: 'opt_out',
+      confidence: 0.8,
+      summary: 'Lead pediu para parar ou demonstrou descadastro.',
+      subject: normalizeSubject(latestSubject),
+      body: 'Combinado, vou remover seu contato da nossa lista. Obrigado pelo retorno.',
+      lead_status: 'opted_out',
+      follow_up_days: null,
+      meeting_start_iso: null,
+      meeting_end_iso: null,
+      reasoning: 'Fallback local detectou intenção de opt-out.',
+    }
+  }
+
+  if (isNegative) {
+    return {
+      action: 'reply',
+      intent: 'negative',
+      confidence: 0.75,
+      summary: 'Lead demonstrou falta de interesse, sem pedir descadastro.',
+      subject: normalizeSubject(latestSubject),
+      body: 'Obrigado pelo retorno. Vou encerrar o contato por aqui para nao insistir. Sucesso por ai.',
+      lead_status: 'negative',
+      follow_up_days: null,
+      meeting_start_iso: null,
+      meeting_end_iso: null,
+      reasoning: 'Fallback local detectou resposta negativa sem opt-out.',
+    }
+  }
+
+  return {
+    action: 'reply',
+    intent: wantsMeeting ? 'meeting' : 'question',
+    confidence: 0.45,
+    summary: 'Resposta automatica gerada por fallback local porque a Gemini nao esta configurada.',
+    subject: normalizeSubject(latestSubject),
+    body: wantsMeeting
+      ? 'Perfeito, faz sentido avançarmos. Me diga dois horários bons para você nos próximos dias que eu organizo o próximo passo.'
+      : 'Obrigado pelo retorno. Faz sentido eu te passar mais contexto por aqui ou prefere que eu envie uma sugestão objetiva de próximos passos?',
+    lead_status: wantsMeeting ? 'interested' : 'replied',
+    follow_up_days: wantsMeeting ? null : 3,
+    meeting_start_iso: null,
+    meeting_end_iso: null,
+    reasoning: 'Sem GEMINI_API_KEY ou erro de IA; resposta conservadora para manter a conversa viva.',
+  }
+}
+
+function skippedDecision({
+  latestSubject,
+  summary,
+  reasoning,
+}: {
+  latestSubject: string | null | undefined
+  summary: string
+  reasoning: string
+}): EmailAgentDecision {
+  return {
+    action: 'skip',
+    intent: 'neutral',
+    confidence: 1,
+    summary,
+    subject: normalizeSubject(latestSubject),
+    body: '',
+    lead_status: 'replied',
+    follow_up_days: null,
+    meeting_start_iso: null,
+    meeting_end_iso: null,
+    reasoning,
+  }
+}
+
+export async function generateEmailAgentDecision({
+  agent,
+  lead,
+  messages,
+}: {
+  agent: EmailAgentProfile
+  lead: EmailAgentLead
+  messages: EmailAgentMessage[]
+}): Promise<EmailAgentDecision> {
+  const latestInbound = [...messages]
+    .reverse()
+    .find((message) => message.direction === 'inbound' && message.body_text?.trim())
+  const latestSubject =
+    latestInbound?.subject || [...messages].reverse().find((message) => message.subject)?.subject || null
+
+  if (!latestInbound?.body_text) {
+    return {
+      action: 'skip',
+      intent: 'neutral',
+      confidence: 1,
+      summary: 'Nao existe resposta recebida para processar.',
+      subject: normalizeSubject(latestSubject),
+      body: '',
+      lead_status: 'replied',
+      follow_up_days: null,
+      meeting_start_iso: null,
+      meeting_end_iso: null,
+      reasoning: 'Thread sem mensagem inbound.',
+    }
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY
+
+  if (!apiKey) {
+    if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
+      return skippedDecision({
+        latestSubject,
+        summary: 'GEMINI_API_KEY nao configurada. Resposta automatica nao foi enviada.',
+        reasoning: 'A engine exige modelo real para responder em nome do usuario.',
+      })
+    }
+
+    return fallbackDecision({
+      latestSubject,
+      latestInbound: latestInbound.body_text,
+    })
+  }
+
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const nowIso = new Date().toISOString()
+  const input = [
+    `Data e hora atual (use para resolver referencias relativas como "amanha", "semana que vem", "segunda-feira"): ${nowIso}`,
+    `Agente: ${agent.name}`,
+    `Contexto do negocio:\n${agent.business_context || 'Nao informado.'}`,
+    `Objetivo da campanha:\n${agent.campaign_goal || 'Marcar uma reuniao qualificada.'}`,
+    `Objecoes comuns e respostas esperadas:\n${agent.common_objections || 'Nao informado.'}`,
+    `Lead:\nNome: ${[lead.first_name, lead.last_name].filter(Boolean).join(' ') || 'Nao informado'}\nEmail: ${
+      lead.email
+    }\nEmpresa: ${lead.company || 'Nao informada'}\nCargo: ${lead.title || 'Nao informado'}\nCampos extras: ${stringifyFields(
+      lead.custom_fields,
+    )}`,
+    `Historico da thread, em ordem cronologica:\n${messages
+      .map((message) => {
+        const author = message.direction === 'outbound' ? 'Nosso agente' : 'Lead'
+        return `[${author} | ${message.sent_at || 'sem data'} | ${message.subject || 'sem assunto'}]\n${
+          message.body_text || ''
+        }`
+      })
+      .join('\n\n---\n\n')}`,
+  ].join('\n\n')
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      model,
+    )}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text: 'Voce e uma IA SDR de prospeccao por e-mail. Responda como uma pessoa objetiva, educada e consultiva. Nao invente links de agenda, precos, cases ou promessas. Se o lead pedir descadastro, remover, parar ou unsubscribe, classifique como opt_out e responda apenas confirmando remocao. Se o lead apenas disser que nao tem interesse ou responder negativamente, classifique como negative, nao como opt_out. Se houver interesse em reuniao, conduza para combinar horarios. Quando o lead confirmar data e horario, use lead_status meeting_booked E preencha meeting_start_iso e meeting_end_iso em ISO 8601 com timezone (ex: 2026-05-30T11:00:00-03:00). A duracao padrao e 30 minutos se nao especificado. Nesse caso, o sistema criara automaticamente um convite Google Calendar com link do Meet e enviara ao lead por e-mail — entao no corpo da resposta diga algo como "Perfeito! Vou enviar o convite pelo Google Meet para o seu e-mail. Ate la!" — NUNCA peca para o lead enviar o convite. NUNCA invente links de Meet voce mesmo. Preserve o idioma do lead. Nunca inclua assinatura longa.',
+          },
+        ],
+      },
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: `${input}\n\nResponda somente com JSON valido no formato: {"action":"reply|skip|opt_out","intent":"interested|objection|question|not_now|negative|opt_out|neutral|meeting","confidence":0.0,"summary":"...","subject":"...","body":"...","lead_status":"replied|interested|meeting_booked|negative|opted_out","follow_up_days":3|null,"meeting_start_iso":"2026-05-07T14:00:00-03:00"|null,"meeting_end_iso":"2026-05-07T14:30:00-03:00"|null,"reasoning":"..."}. IMPORTANTE: quando o lead confirmar data e horario de reuniao, use lead_status meeting_booked e preencha meeting_start_iso e meeting_end_iso em ISO 8601 com timezone correto da conversa. Para calcular datas relativas como "amanha" ou "segunda-feira", use a data atual fornecida no contexto. Duracao padrao: 30 minutos. Se a data/hora nao estiver clara, use null e continue perguntando.`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.35,
+        maxOutputTokens: 1200,
+      },
+    }),
+    cache: 'no-store',
+  },
+  )
+
+  const json = (await response.json()) as GeminiResponse
+
+  if (!response.ok) {
+    if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
+      return skippedDecision({
+        latestSubject,
+        summary: json.error?.message || 'Gemini retornou erro. Resposta automatica nao enviada.',
+        reasoning: 'Falha na chamada Gemini.',
+      })
+    }
+
+    return fallbackDecision({
+      latestSubject,
+      latestInbound: latestInbound.body_text,
+    })
+  }
+
+  const outputText = extractOutputText(json)
+
+  try {
+    const decision = JSON.parse(outputText) as EmailAgentDecision
+    return {
+      ...decision,
+      subject: normalizeSubject(decision.subject || latestSubject),
+      body: decision.body.trim(),
+      confidence: Math.max(0, Math.min(1, Number(decision.confidence) || 0)),
+    }
+  } catch {
+    if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
+      return skippedDecision({
+        latestSubject,
+        summary: 'Gemini retornou JSON invalido. Resposta automatica nao enviada.',
+        reasoning: 'Falha ao interpretar a resposta estruturada da Gemini.',
+      })
+    }
+
+    return fallbackDecision({
+      latestSubject,
+      latestInbound: latestInbound.body_text,
+    })
+  }
+}
