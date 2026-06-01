@@ -14,7 +14,7 @@
 
 ## Entregáveis exigidos (checklist)
 
-- [ ] Código (repo acessível)
+- [x] Código (repo acessível) — privado: dar acesso de teste aos juízes ou tornar público no dia da submissão
 - [ ] Vídeo de demo (~3 min)
 - [ ] Diagrama de arquitetura
 - [ ] Acesso de teste (link/demo/build, com login se privado)
@@ -53,7 +53,7 @@ _[colar diagrama aqui no dia 4]_
 
 ## Links (preencher)
 
-- Repo: _[url]_
+- Repo: https://github.com/oetnegro/vendas-ia (PRIVADO — dar acesso de teste aos juízes ou tornar público no dia da submissão)
 - Vídeo: _[url]_
 - Demo / acesso de teste: _[url + credenciais se privado]_
 
@@ -65,6 +65,7 @@ _[colar diagrama aqui no dia 4]_
 | 2026-05-29 | Enrichment Apify | ✅ | ICP form pré-preenchido do agente → Gemini escolhe actor dinamicamente da allowlist → Apify roda async → preview de leads (valid/guessed/sem email) → importa com dedupe e quota; "Apify" nunca aparece na UI |
 | 2026-06-01 | ADK reply-agent | 🟡 | Serviço Python ADK 2.1 + Gemini em `services/adk-agent/` (classify→meeting→reply com tools), endpoint FastAPI autenticado, `EmailAgentDecision` 1:1; integração TS atrás da flag `USE_ADK_REPLY` com fallback automático; traces estruturados p/ Cloud Logging. Validado localhost (meeting/opt-out/negative + auth). Deploy Cloud Run pendente (gcloud/Docker ausentes nesta máquina) — Dockerfile + deploy.sh prontos |
 | 2026-06-01 | MCP server (publicado) | ✅ | Vendas+IA publicado como MCP server (Streamable HTTP em `/api/mcp`, SDK oficial); auth por token de workspace (sha256, scopes read/write/send, rate limit, revogável); 9 tools (list_campaigns, get_campaign, get_funnel_stats, list_recent_replies, list_leads, create_campaign_draft, enrich_leads, pause/resume_campaign); toda ação auditada com prefixo `mcp:`; UI em /settings/integrations gera/revoga tokens; nenhuma tool envia e-mail. Validado localhost end-to-end |
+| 2026-06-01 | Git + GitHub | ✅ | Projeto versionado com git e enviado ao repo PRIVADO oetnegro/vendas-ia; .gitignore reforçado (.claude/, CSV de leads, exceção p/ .env.example); auditoria confirmou zero segredos no remoto |
 | | Cloud Run + Scheduler | | |
 | | Evals | | |
 | | Tracking open/click | | |
