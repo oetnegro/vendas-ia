@@ -44,6 +44,9 @@ yarn-error.log*
 # dados pessoais / leads de teste (PII)
 leads-teste-vendas-ia.csv
 
+# evals: datasets contêm conversas reais (PII) — nunca commitar
+/evals/datasets/
+
 # python (adk service)
 services/**/.venv/
 __pycache__/

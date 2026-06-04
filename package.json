@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "eval:export": "node --env-file=.env.local evals/export-dataset.ts",
+    "eval:run": "node --env-file=.env.local evals/run.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

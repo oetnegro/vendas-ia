@@ -22,7 +22,7 @@
 
 ## Tecnologias obrigatórias / pontos do Google (checklist de regra)
 
-- [ ] **Gemini** — usado no cérebro do agente (classificação, resposta, extração de reunião) e no enrichment (NL → params)
+- [x] **Gemini** — usado no cérebro do agente (classificação, resposta, extração de reunião) e no enrichment (NL → params)
 - [x] **ADK (Agent Development Kit)** — agente Python no Cloud Run (reply: classify → meeting → calendar → reply)
 - [ ] **MCP (Model Context Protocol)** — duas pontas:
   - [x] PUBLICADO: Vendas+IA como MCP server (cliente opera via Claude/Codex/Cursor) — rota Streamable HTTP em `/api/mcp`, auth por token de workspace, 9 tools (read/write), auditoria `mcp:` em activity_logs. Validado localhost.
@@ -46,10 +46,19 @@ _[colar diagrama aqui no dia 4]_
 - **Prova:** piloto interno real rodando (não é protótipo). Métricas: _[preencher: leads contatados, % resposta, reuniões agendadas]_
 - **Mercado:** milhões de builders globalmente; pronto para Google Cloud Marketplace.
 
-## Métricas de evals (preencher no dia 2)
+## Métricas de evals
 
-- Reply classification — precision/recall antes → depois do tuning: _[__ % → __ %]_
-- Meeting extraction — F1 antes → depois: _[__ → __]_
+Base: **~200 conversas reais** do Vendas+IA rodando no WhatsApp (mesmo produto/ICP, em português),
+amostra de **30 revisada manualmente** (concordância humano × rótulo do CRM: **93,3%**).
+Medição com Gemini real; system instruction versionada **V1 → V2** (ver `evals/report.md`).
+
+- **Reply classification** (200 conversas) — accuracy **29,5% → 62,0%**; macro-F1 **23,8% → 53,9%**
+  (negative F1 51,9→67,1 · meeting F1 43,5→84,1 · question F1 0→64,3).
+- **Reply classification** (gold humano, 30) — accuracy **6,7% → 63,3%**; macro-F1 **11,1% → 63,8%**.
+- **Meeting extraction** — F1 **40,0% → 77,8%** (escala) · **50,0% → 66,7%** (gold humano).
+
+> Obs.: número conservador — a API free-tier devolve resposta vazia ~7–15% das vezes (vira erro
+> contado contra o modelo); a qualidade real da V2 é ainda maior.
 
 ## Links (preencher)
 
@@ -67,5 +76,5 @@ _[colar diagrama aqui no dia 4]_
 | 2026-06-01 | MCP server (publicado) | ✅ | Vendas+IA publicado como MCP server (Streamable HTTP em `/api/mcp`, SDK oficial); auth por token de workspace (sha256, scopes read/write/send, rate limit, revogável); 9 tools (list_campaigns, get_campaign, get_funnel_stats, list_recent_replies, list_leads, create_campaign_draft, enrich_leads, pause/resume_campaign); toda ação auditada com prefixo `mcp:`; UI em /settings/integrations gera/revoga tokens; nenhuma tool envia e-mail. Validado localhost end-to-end |
 | 2026-06-01 | Git + GitHub | ✅ | Projeto versionado com git e enviado ao repo PRIVADO oetnegro/vendas-ia; .gitignore reforçado (.claude/, CSV de leads, exceção p/ .env.example); auditoria confirmou zero segredos no remoto |
 | 2026-06-01 | Cloud Run + Scheduler + Logging | ✅ | ADK deployado no Cloud Run (serviço `adk-reply-agent`, `https://adk-reply-agent-161310283897.us-central1.run.app`), app ligado via flag reversível `USE_ADK_REPLY`, cron migrado pro Cloud Scheduler (job `vendasia-email-engine`, */5 min) com n8n de backup pausável; traces validados no Cloud Logging |
-| | Evals | | |
+| 2026-06-01 | Evals | ✅ | Runner próprio (sem deps) sobre ~200 conversas reais do WhatsApp + gold humano de 30 (concordância 93,3%); Gemini real, system instruction versionada V1→V2. Reply classification accuracy 29,5%→62,0% (macro-F1 23,8%→53,9%); meeting extraction F1 40,0%→77,8%. Corrigidos 2 bugs de infra do cérebro (thinking budget + truncamento de JSON) |
 | | Tracking open/click | | |
