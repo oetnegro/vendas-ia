@@ -9,7 +9,7 @@
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-pro'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 const APIFY_BASE = 'https://api.apify.com/v2'
 
 // ---------------------------------------------------------------------------
@@ -402,6 +402,7 @@ Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<para
   let parsed: { actor_id?: string; params?: Record<string, unknown>; reasoning?: string } | null =
     null
   let lastText = ''
+  let lastApiError = ''
   for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
@@ -414,6 +415,8 @@ Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<para
     )
 
     const json = (await res.json()) as GeminiResponse
+    // Surface the real Gemini failure (auth/quota/model) instead of staying mute.
+    if (json.error?.message) lastApiError = json.error.message
     const text =
       json.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('').trim() || ''
     lastText = text
@@ -426,7 +429,8 @@ Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<para
   }
 
   if (!parsed) {
-    throw new Error(`Gemini retornou JSON inválido para escolha de actor: ${lastText.slice(0, 200)}`)
+    const detail = lastApiError || lastText.slice(0, 200) || 'resposta vazia do modelo'
+    throw new Error(`Gemini falhou ao escolher estratégia de busca (${GEMINI_MODEL}): ${detail}`)
   }
 
   const actorId = parsed.actor_id?.trim() || ''
