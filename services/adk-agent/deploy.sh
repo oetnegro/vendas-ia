@@ -20,6 +20,12 @@ REGION="${GCP_REGION:-us-central1}"
 SERVICE="${SERVICE_NAME:-adk-reply-agent}"
 GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
 
+# Vertex AI: o ADK roda dentro do GCP e usa a identidade (service account) do
+# Cloud Run — NAO precisa de chave .json. Garanta que essa SA tenha
+# roles/aiplatform.user. GOOGLE_CLOUD_PROJECT + GOOGLE_CLOUD_LOCATION dizem ao
+# SDK google-genai para onde apontar quando USE_VERTEXAI=1.
+GOOGLE_CLOUD_LOCATION="${GOOGLE_CLOUD_LOCATION:-us-central1}"
+
 # Build with Cloud Build and deploy from source (no local Docker required).
 gcloud run deploy "${SERVICE}" \
   --project "${GCP_PROJECT}" \
@@ -27,7 +33,7 @@ gcloud run deploy "${SERVICE}" \
   --source . \
   --allow-unauthenticated \
   --port 8080 \
-  --set-env-vars "GEMINI_API_KEY=${GEMINI_API_KEY},GEMINI_MODEL=${GEMINI_MODEL},ADK_SHARED_SECRET=${ADK_SHARED_SECRET},GOOGLE_GENAI_USE_VERTEXAI=0"
+  --set-env-vars "GEMINI_API_KEY=${GEMINI_API_KEY},GEMINI_MODEL=${GEMINI_MODEL},ADK_SHARED_SECRET=${ADK_SHARED_SECRET},GOOGLE_GENAI_USE_VERTEXAI=1,GOOGLE_CLOUD_PROJECT=${GCP_PROJECT},GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}"
 
 echo
 echo "Deployed. Service URL:"

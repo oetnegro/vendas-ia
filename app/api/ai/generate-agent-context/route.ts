@@ -1,18 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
+import { generateGeminiContent } from '@/lib/ai/vertex'
 
 type GenerateBody = {
   sector?: string
   language?: string
-}
-
-type GeminiResponse = {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>
-    }
-  }>
-  error?: { message?: string }
 }
 
 const SECTOR_LABELS: Record<string, string> = {
@@ -56,9 +48,12 @@ export async function POST(req: NextRequest) {
   const sector = body.sector || 'b2b_services'
   const sectorLabel = getSectorLabel(sector)
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY nao configurada no servidor.' }, { status: 503 })
+  const geminiConfigured =
+    process.env.GEMINI_PROVIDER === 'aistudio'
+      ? !!process.env.GEMINI_API_KEY
+      : !!(process.env.GCP_SA_KEY && process.env.GCP_PROJECT_ID)
+  if (!geminiConfigured) {
+    return NextResponse.json({ error: 'Provedor Gemini nao configurado no servidor.' }, { status: 503 })
   }
 
   const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
@@ -80,22 +75,14 @@ Responda SOMENTE com um JSON valido no formato abaixo, sem texto fora do JSON:
 Mantenha o texto em portugues brasileiro. Seja especifico e realista para o setor "${sectorLabel}".`
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1024,
-          },
-        }),
+    const { json } = await generateGeminiContent({
+      model,
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1024,
       },
-    )
-
-    const json = (await res.json()) as GeminiResponse
+    })
 
     if (json.error?.message) {
       return NextResponse.json({ error: `Gemini: ${json.error.message}` }, { status: 502 })

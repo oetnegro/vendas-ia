@@ -7,10 +7,17 @@
  * para fácil integração futura com ADK/MCP.
  */
 
+import { generateGeminiContent } from '@/lib/ai/vertex'
+
 const APIFY_TOKEN = process.env.APIFY_TOKEN
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 const APIFY_BASE = 'https://api.apify.com/v2'
+
+function geminiConfigured(): boolean {
+  return process.env.GEMINI_PROVIDER === 'aistudio'
+    ? !!process.env.GEMINI_API_KEY
+    : !!(process.env.GCP_SA_KEY && process.env.GCP_PROJECT_ID)
+}
 
 // ---------------------------------------------------------------------------
 // Types (tool-ready signatures)
@@ -357,13 +364,8 @@ export function capActorParams(
 // Tool 1: chooseActor — Gemini selects best actor + generates params
 // ---------------------------------------------------------------------------
 
-type GeminiResponse = {
-  candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-  error?: { message?: string }
-}
-
 export async function chooseActor(icp: IcpData): Promise<ActorChoice> {
-  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY não configurada.')
+  if (!geminiConfigured()) throw new Error('Provedor Gemini não configurado.')
 
   const allowlistDescription = Object.values(ACTOR_ALLOWLIST)
     .map((a) => `ID: "${a.id}" | ${a.useCaseSummary} | params exemplo: ${a.exampleParams}`)
@@ -382,20 +384,17 @@ ${allowlistDescription}
 
 Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<params prontos para a API Apify, max 30 resultados>},"reasoning":"<1 frase>"}`
 
-  const requestBody = JSON.stringify({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      temperature: 0.2,
-      // gemini-2.5 usa "thinking" por padrao, que consome o orcamento de tokens
-      // e deixa o JSON vazio/truncado (erro "JSON invalido para escolha de actor").
-      // Desligamos o thinking para esta tarefa estruturada e damos folga no teto.
-      maxOutputTokens: 4096,
-      thinkingConfig: {
-        thinkingBudget: 0,
-      },
+  const generationConfig = {
+    responseMimeType: 'application/json',
+    temperature: 0.2,
+    // gemini-2.5 usa "thinking" por padrao, que consome o orcamento de tokens
+    // e deixa o JSON vazio/truncado (erro "JSON invalido para escolha de actor").
+    // Desligamos o thinking para esta tarefa estruturada e damos folga no teto.
+    maxOutputTokens: 4096,
+    thinkingConfig: {
+      thinkingBudget: 0,
     },
-  })
+  }
 
   // Free-tier do Gemini as vezes devolve resposta vazia de forma intermitente;
   // tentamos ate 2x para a demo nao falhar num clique isolado.
@@ -404,17 +403,12 @@ Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<para
   let lastText = ''
   let lastApiError = ''
   for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: requestBody,
-        cache: 'no-store',
-      },
-    )
+    const { json } = await generateGeminiContent({
+      model: GEMINI_MODEL,
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig,
+    })
 
-    const json = (await res.json()) as GeminiResponse
     // Surface the real Gemini failure (auth/quota/model) instead of staying mute.
     if (json.error?.message) lastApiError = json.error.message
     const text =

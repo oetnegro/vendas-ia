@@ -1,4 +1,5 @@
 import type { Json } from '@/types/database'
+import { generateGeminiContent } from '@/lib/ai/vertex'
 
 export type EmailAgentLead = {
   email: string
@@ -219,13 +220,16 @@ export async function generateEmailAgentDecision({
     }
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
+  const modelConfigured =
+    process.env.GEMINI_PROVIDER === 'aistudio'
+      ? !!process.env.GEMINI_API_KEY
+      : !!(process.env.GCP_SA_KEY && process.env.GCP_PROJECT_ID)
 
-  if (!apiKey) {
+  if (!modelConfigured) {
     if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
       return skippedDecision({
         latestSubject,
-        summary: 'GEMINI_API_KEY nao configurada. Resposta automatica nao foi enviada.',
+        summary: 'Provedor Gemini nao configurado. Resposta automatica nao foi enviada.',
         reasoning: 'A engine exige modelo real para responder em nome do usuario.',
       })
     }
@@ -259,50 +263,39 @@ export async function generateEmailAgentDecision({
       .join('\n\n---\n\n')}`,
   ].join('\n\n')
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-      model,
-    )}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
+  const response = await generateGeminiContent({
+    model,
+    systemInstruction: {
+      parts: [
+        {
+          text: activeEmailAgentInstruction(),
+        },
+      ],
     },
-    body: JSON.stringify({
-      systemInstruction: {
+    contents: [
+      {
+        role: 'user',
         parts: [
           {
-            text: activeEmailAgentInstruction(),
+            text: `${input}\n\nResponda somente com JSON valido no formato: {"action":"reply|skip|opt_out","intent":"interested|objection|question|not_now|negative|opt_out|neutral|meeting","confidence":0.0,"summary":"...","subject":"...","body":"...","lead_status":"replied|interested|meeting_booked|negative|opted_out","follow_up_days":3|null,"meeting_start_iso":"2026-05-07T14:00:00-03:00"|null,"meeting_end_iso":"2026-05-07T14:30:00-03:00"|null,"reasoning":"..."}. IMPORTANTE: quando o lead confirmar data e horario de reuniao, use lead_status meeting_booked e preencha meeting_start_iso e meeting_end_iso em ISO 8601 com timezone correto da conversa. Para calcular datas relativas como "amanha" ou "segunda-feira", use a data atual fornecida no contexto. Duracao padrao: 30 minutos. Se a data/hora nao estiver clara, use null e continue perguntando.`,
           },
         ],
       },
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: `${input}\n\nResponda somente com JSON valido no formato: {"action":"reply|skip|opt_out","intent":"interested|objection|question|not_now|negative|opt_out|neutral|meeting","confidence":0.0,"summary":"...","subject":"...","body":"...","lead_status":"replied|interested|meeting_booked|negative|opted_out","follow_up_days":3|null,"meeting_start_iso":"2026-05-07T14:00:00-03:00"|null,"meeting_end_iso":"2026-05-07T14:30:00-03:00"|null,"reasoning":"..."}. IMPORTANTE: quando o lead confirmar data e horario de reuniao, use lead_status meeting_booked e preencha meeting_start_iso e meeting_end_iso em ISO 8601 com timezone correto da conversa. Para calcular datas relativas como "amanha" ou "segunda-feira", use a data atual fornecida no contexto. Duracao padrao: 30 minutos. Se a data/hora nao estiver clara, use null e continue perguntando.`,
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.35,
-        // gemini-2.5-flash usa "thinking" por padrao, que consome o orcamento de tokens
-        // e deixava a resposta JSON vazia/truncada (caia em skip/neutral). Desligamos o
-        // thinking para esta tarefa de classificacao estruturada e damos folga no teto.
-        maxOutputTokens: 4096,
-        thinkingConfig: {
-          thinkingBudget: 0,
-        },
+    ],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.35,
+      // gemini-2.5-flash usa "thinking" por padrao, que consome o orcamento de tokens
+      // e deixava a resposta JSON vazia/truncada (caia em skip/neutral). Desligamos o
+      // thinking para esta tarefa de classificacao estruturada e damos folga no teto.
+      maxOutputTokens: 4096,
+      thinkingConfig: {
+        thinkingBudget: 0,
       },
-    }),
-    cache: 'no-store',
-  },
-  )
+    },
+  })
 
-  const json = (await response.json()) as GeminiResponse
+  const json = response.json as GeminiResponse
 
   if (!response.ok) {
     if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
