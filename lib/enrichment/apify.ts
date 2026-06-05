@@ -382,32 +382,51 @@ ${allowlistDescription}
 
 Responda SOMENTE com JSON: {"actor_id":"<ID_EXATO_DA_ALLOWLIST>","params":{<params prontos para a API Apify, max 30 resultados>},"reasoning":"<1 frase>"}`
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          temperature: 0.2,
-          maxOutputTokens: 2000,
-        },
-      }),
-      cache: 'no-store',
+  const requestBody = JSON.stringify({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.2,
+      // gemini-2.5 usa "thinking" por padrao, que consome o orcamento de tokens
+      // e deixa o JSON vazio/truncado (erro "JSON invalido para escolha de actor").
+      // Desligamos o thinking para esta tarefa estruturada e damos folga no teto.
+      maxOutputTokens: 4096,
+      thinkingConfig: {
+        thinkingBudget: 0,
+      },
     },
-  )
+  })
 
-  const json = (await res.json()) as GeminiResponse
-  const text =
-    json.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('').trim() || ''
+  // Free-tier do Gemini as vezes devolve resposta vazia de forma intermitente;
+  // tentamos ate 2x para a demo nao falhar num clique isolado.
+  let parsed: { actor_id?: string; params?: Record<string, unknown>; reasoning?: string } | null =
+    null
+  let lastText = ''
+  for (let attempt = 0; attempt < 2 && !parsed; attempt++) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: requestBody,
+        cache: 'no-store',
+      },
+    )
 
-  let parsed: { actor_id?: string; params?: Record<string, unknown>; reasoning?: string }
-  try {
-    parsed = JSON.parse(text)
-  } catch {
-    throw new Error(`Gemini retornou JSON inválido para escolha de actor: ${text.slice(0, 200)}`)
+    const json = (await res.json()) as GeminiResponse
+    const text =
+      json.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('').trim() || ''
+    lastText = text
+    if (!text) continue
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      parsed = null
+    }
+  }
+
+  if (!parsed) {
+    throw new Error(`Gemini retornou JSON inválido para escolha de actor: ${lastText.slice(0, 200)}`)
   }
 
   const actorId = parsed.actor_id?.trim() || ''
