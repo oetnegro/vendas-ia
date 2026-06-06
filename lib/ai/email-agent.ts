@@ -102,6 +102,66 @@ function extractOutputText(json: GeminiResponse) {
   return json.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n').trim() || ''
 }
 
+// O Gemini ocasionalmente devolve JSON com caracteres de controle crus (quebras de
+// linha, tabs) dentro de valores string — JSON.parse rejeita isso. Escapamos apenas
+// os caracteres de controle que estao DENTRO de strings, preservando a formatacao.
+function escapeControlCharsInJsonStrings(raw: string) {
+  let out = ''
+  let inString = false
+  let escaped = false
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i]
+    if (escaped) {
+      out += ch
+      escaped = false
+      continue
+    }
+    if (ch === '\\') {
+      out += ch
+      escaped = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      out += ch
+      continue
+    }
+    if (inString) {
+      const code = ch.charCodeAt(0)
+      if (code < 0x20) {
+        if (ch === '\n') out += '\\n'
+        else if (ch === '\r') out += '\\r'
+        else if (ch === '\t') out += '\\t'
+        else out += '\\u' + code.toString(16).padStart(4, '0')
+        continue
+      }
+    }
+    out += ch
+  }
+  return out
+}
+
+// Parse tolerante: tenta direto, depois extrai do primeiro { ao ultimo } e
+// reescapa caracteres de controle. Retorna null se nada funcionar.
+function parseDecisionJson(outputText: string): EmailAgentDecision | null {
+  const candidates = [outputText]
+  const first = outputText.indexOf('{')
+  const last = outputText.lastIndexOf('}')
+  if (first >= 0 && last > first) {
+    const slice = outputText.slice(first, last + 1)
+    candidates.push(slice)
+    candidates.push(escapeControlCharsInJsonStrings(slice))
+  }
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as EmailAgentDecision
+    } catch {
+      // tenta o proximo candidato
+    }
+  }
+  return null
+}
+
 function fallbackDecision({
   latestSubject,
   latestInbound,
@@ -313,27 +373,27 @@ export async function generateEmailAgentDecision({
   }
 
   const outputText = extractOutputText(json)
+  const decision = parseDecisionJson(outputText)
 
-  try {
-    const decision = JSON.parse(outputText) as EmailAgentDecision
+  if (decision) {
     return {
       ...decision,
       subject: normalizeSubject(decision.subject || latestSubject),
-      body: decision.body.trim(),
+      body: (decision.body || '').trim(),
       confidence: Math.max(0, Math.min(1, Number(decision.confidence) || 0)),
     }
-  } catch {
-    if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
-      return skippedDecision({
-        latestSubject,
-        summary: 'Gemini retornou JSON invalido. Resposta automatica nao enviada.',
-        reasoning: 'Falha ao interpretar a resposta estruturada da Gemini.',
-      })
-    }
+  }
 
-    return fallbackDecision({
+  if (process.env.AI_REPLY_FALLBACK_ENABLED !== 'true') {
+    return skippedDecision({
       latestSubject,
-      latestInbound: latestInbound.body_text,
+      summary: 'Gemini retornou JSON invalido. Resposta automatica nao enviada.',
+      reasoning: 'Falha ao interpretar a resposta estruturada da Gemini.',
     })
   }
+
+  return fallbackDecision({
+    latestSubject,
+    latestInbound: latestInbound.body_text,
+  })
 }
