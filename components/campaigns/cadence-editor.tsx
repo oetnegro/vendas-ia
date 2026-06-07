@@ -52,11 +52,11 @@ type SendingWindow = {
 }
 
 const timezoneOptions = [
-  { value: 'America/New_York', label: 'EUA Leste (New York)' },
-  { value: 'America/Chicago', label: 'EUA Central (Chicago)' },
-  { value: 'America/Denver', label: 'EUA Mountain (Denver)' },
-  { value: 'America/Los_Angeles', label: 'EUA Pacifico (Los Angeles)' },
-  { value: 'America/Sao_Paulo', label: 'Brasil (Sao Paulo)' },
+  { value: 'America/New_York', label: 'US Eastern (New York)' },
+  { value: 'America/Chicago', label: 'US Central (Chicago)' },
+  { value: 'America/Denver', label: 'US Mountain (Denver)' },
+  { value: 'America/Los_Angeles', label: 'US Pacific (Los Angeles)' },
+  { value: 'America/Sao_Paulo', label: 'Brazil (São Paulo)' },
 ]
 
 const defaultSteps: CadenceStep[] = [
@@ -90,9 +90,9 @@ const sectorSuggestions: Record<
   }
 > = {
   b2b_services: {
-    label: 'Servicos B2B',
+    label: 'B2B Services',
     recommendedSteps: 4,
-    reason: 'Venda consultiva costuma precisar de contexto, follow-up leve e encerramento elegante.',
+    reason: 'Consultative sales typically needs context, a light follow-up, and a graceful close.',
     steps: [
       {
         step_order: 1,
@@ -123,7 +123,7 @@ const sectorSuggestions: Record<
   saas: {
     label: 'SaaS / Software',
     recommendedSteps: 5,
-    reason: 'SaaS se beneficia de uma cadencia um pouco maior, alternando dor, prova e CTA.',
+    reason: 'SaaS benefits from a slightly longer cadence, alternating pain, proof, and CTA.',
     steps: [
       {
         step_order: 1,
@@ -158,9 +158,9 @@ const sectorSuggestions: Record<
     ],
   },
   agency: {
-    label: 'Agencias',
+    label: 'Agencies',
     recommendedSteps: 4,
-    reason: 'Agencias respondem melhor com mensagens curtas, foco em ganho operacional e agenda clara.',
+    reason: 'Agencies respond better to short messages focused on operational gains and a clear CTA.',
     steps: [
       {
         step_order: 1,
@@ -200,11 +200,11 @@ function applyTextFormat(
   const selected = value.slice(selectionStart, selectionEnd)
   const before = value.slice(0, selectionStart)
   const after = value.slice(selectionEnd)
-  const fallback = selected || 'texto'
+  const fallback = selected || 'text'
 
   if (format === 'bold') return `${before}**${fallback}**${after}`
   if (format === 'italic') return `${before}*${fallback}*${after}`
-  if (format === 'link') return `${before}[${fallback}](${options?.url || 'https://exemplo.com'})${after}`
+  if (format === 'link') return `${before}[${fallback}](${options?.url || 'https://example.com'})${after}`
   if (format === 'list') return `${before}${selected ? selected.split('\n').map((line) => `- ${line}`).join('\n') : '- item'}${after}`
   if (format === 'code') return `${before}\`${fallback}\`${after}`
 
@@ -291,7 +291,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
     if (!textarea) return
     const url =
       format === 'link'
-        ? window.prompt('Cole a URL do link', 'https://')
+        ? window.prompt('Paste the link URL', 'https://')
         : null
 
     if (format === 'link' && !url) return
@@ -332,7 +332,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
   const applySuggestion = () => {
     const suggestion = sectorSuggestions[selectedSector]
     setSteps(suggestion.steps.map((step, index) => ({ ...step, step_order: index + 1 })))
-    setMessage(`Sugestao aplicada: ${suggestion.recommendedSteps} emails para ${suggestion.label}.`)
+    setMessage(`Suggestion applied: ${suggestion.recommendedSteps} emails for ${suggestion.label}.`)
     setError(null)
   }
 
@@ -464,21 +464,21 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
 
     setMessage(
       shouldRequireReapproval
-        ? 'Campanha salva como rascunho. Revise e aprove novamente antes de usar na engine.'
-        : 'Cadencia salva como rascunho.',
+        ? 'Campaign saved as draft. Review and approve again before using in the engine.'
+        : 'Cadence saved as draft.',
     )
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-500">Carregando cadencia...</p>
+    return <p className="text-sm text-slate-500">Loading cadence...</p>
   }
 
   if (!campaign) {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <h1 className="text-2xl font-semibold text-[#2C3E50]">Campanha nao encontrada</h1>
+        <h1 className="text-2xl font-semibold text-[#2C3E50]">Campaign not found</h1>
         <Link href="/campaigns" className="mt-5 inline-flex text-sm font-semibold text-[#2C3E50]">
-          Voltar para campanhas
+          Back to campaigns
         </Link>
       </section>
     )
@@ -493,13 +493,13 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#2C3E50]"
           >
             <ArrowLeft className="h-4 w-4" />
-            Campanhas
+            Campaigns
           </Link>
-          <p className="mt-4 text-sm font-semibold text-[#B98A1D]">Cadencia</p>
+          <p className="mt-4 text-sm font-semibold text-[#B98A1D]">Cadence</p>
           <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">{campaign.name}</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-            Edite objetivo, horarios, volume e emails. Se uma campanha aprovada for alterada, ela
-            volta para rascunho para nova revisao.
+            Edit objective, schedule, volume, and emails. If an approved campaign is changed, it
+            returns to draft for re-review.
           </p>
         </div>
         <button
@@ -508,7 +508,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2C3E50]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#2C3E50] shadow-sm hover:bg-slate-50"
         >
           <Plus className="h-4 w-4" />
-          Adicionar passo
+          Add step
         </button>
       </div>
 
@@ -518,17 +518,16 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             <CalendarClock className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-[#2C3E50]">Configuracao da campanha</h2>
+            <h2 className="text-sm font-bold text-[#2C3E50]">Campaign settings</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Defina o horario local do publico e um espacamento entre e-mails para reduzir risco
-              de spam.
+              Set the audience local time and email spacing to reduce spam risk.
             </p>
           </div>
         </div>
 
         <div className="mt-5 grid gap-4">
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Nome da campanha</span>
+            <span className="text-sm font-semibold text-slate-700">Campaign name</span>
             <input
               required
               value={campaignSettings.name}
@@ -540,7 +539,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Objetivo</span>
+            <span className="text-sm font-semibold text-slate-700">Objective</span>
             <textarea
               required
               rows={3}
@@ -554,7 +553,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Leads por mes</span>
+              <span className="text-sm font-semibold text-slate-700">Leads per month</span>
               <input
                 type="number"
                 min={1}
@@ -570,7 +569,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Envios por dia</span>
+              <span className="text-sm font-semibold text-slate-700">Sends per day</span>
               <input
                 type="number"
                 min={1}
@@ -588,7 +587,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
 
           <div className="grid gap-4 md:grid-cols-3">
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Timezone dos leads</span>
+              <span className="text-sm font-semibold text-slate-700">Leads timezone</span>
               <select
                 value={campaignSettings.timezone}
                 onChange={(event) =>
@@ -605,7 +604,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Horario inicial</span>
+              <span className="text-sm font-semibold text-slate-700">Send time</span>
               <input
                 type="time"
                 value={campaignSettings.sendTime}
@@ -617,7 +616,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Espacamento</span>
+              <span className="text-sm font-semibold text-slate-700">Spacing</span>
               <input
                 type="number"
                 min={1}
@@ -631,15 +630,15 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                 }
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
               />
-              <p className="mt-1 text-xs text-slate-500">minutos entre um envio e outro</p>
+              <p className="mt-1 text-xs text-slate-500">minutes between sends</p>
               </label>
           </div>
 
           <p className="rounded-lg border border-[#F4D58D]/60 bg-[#FFF9E8] px-3 py-2 text-xs font-medium text-slate-700">
-            Com {campaignSettings.dailySendLimit || 0}/dia e espacamento de{' '}
-            {campaignSettings.spacingMinutes || 0} minuto(s), a rodada leva cerca de{' '}
-            {estimatedDurationMinutes} minuto(s). O Email 1 deve ficar com delay 0 para sair no
-            primeiro horario elegivel depois da aprovacao.
+            With {campaignSettings.dailySendLimit || 0}/day and{' '}
+            {campaignSettings.spacingMinutes || 0} minute spacing, a batch takes about{' '}
+            {estimatedDurationMinutes} minute(s). Email 1 should have delay 0 to send at the first
+            eligible time after approval.
           </p>
         </div>
       </section>
@@ -651,17 +650,17 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#2C3E50]">Sugestao de IA para cadencia</h2>
+              <h2 className="text-sm font-bold text-[#2C3E50]">AI suggestion for cadence</h2>
               <p className="mt-1 text-sm text-slate-800">
-                Escolha o setor e aplique uma estrutura inicial com quantidade de emails, assuntos,
-                corpo e delays. Voce ainda edita tudo antes de aprovar.
+                Choose a sector and apply an initial structure with email count, subjects, body, and
+                delays. You can still edit everything before approving.
               </p>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <label className="sr-only" htmlFor="sector-suggestion">
-              Setor
+              Sector
             </label>
             <select
               id="sector-suggestion"
@@ -681,12 +680,12 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#34495E]"
             >
               <Lightbulb className="h-4 w-4" />
-              Aplicar sugestao
+              Apply suggestion
             </button>
           </div>
         </div>
         <p className="mt-4 rounded-lg border border-[#F4D58D]/70 bg-white px-3 py-2 text-sm font-medium text-slate-800">
-          Para {sectorSuggestions[selectedSector].label}, indicamos{' '}
+          For {sectorSuggestions[selectedSector].label}, we recommend{' '}
           <strong>{sectorSuggestions[selectedSector].recommendedSteps} emails</strong>.{' '}
           {sectorSuggestions[selectedSector].reason}
         </p>
@@ -702,7 +701,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-slate-900">Email {index + 1}</h2>
-                  <p className="text-xs text-slate-500">Delay de {step.delay_days} dia(s)</p>
+                  <p className="text-xs text-slate-500">Delay: {step.delay_days} day(s)</p>
                 </div>
               </div>
               <button
@@ -711,13 +710,13 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4" />
-                Remover
+                Remove
               </button>
             </div>
 
             <div className="mt-4 grid gap-4">
               <label className="block md:w-48">
-                <span className="text-sm font-semibold text-slate-700">Delay em dias</span>
+                <span className="text-sm font-semibold text-slate-700">Delay in days</span>
                 <input
                   type="number"
                   min={0}
@@ -730,7 +729,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
               <label className="block">
                 <span className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                   <Mail className="h-4 w-4" />
-                  Assunto
+                  Subject
                 </span>
                 <input
                   required
@@ -742,14 +741,14 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
 
               <label className="block">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-semibold text-slate-700">Corpo</span>
+                  <span className="text-sm font-semibold text-slate-700">Body</span>
                   <div className="flex flex-wrap gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
                     {[
-                      { key: 'bold', label: 'Negrito', icon: Type },
-                      { key: 'italic', label: 'Italico', icon: Italic },
+                      { key: 'bold', label: 'Bold', icon: Type },
+                      { key: 'italic', label: 'Italic', icon: Italic },
                       { key: 'link', label: 'Link', icon: LinkIcon },
-                      { key: 'list', label: 'Lista', icon: List },
-                      { key: 'code', label: 'Codigo', icon: Code },
+                      { key: 'list', label: 'List', icon: List },
+                      { key: 'code', label: 'Code', icon: Code },
                     ].map((action) => {
                       const Icon = action.icon
 
@@ -772,7 +771,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                       )
                     })}
                     <select
-                      aria-label="Inserir variavel"
+                      aria-label="Insert variable"
                       defaultValue=""
                       onChange={(event) => {
                         const textarea = document.getElementById(
@@ -784,7 +783,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                       className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs font-semibold text-[#2C3E50]"
                     >
                       <option value="" disabled>
-                        Variavel
+                        Variable
                       </option>
                       <option value="first_name">{'{{first_name}}'}</option>
                       <option value="company">{'{{company}}'}</option>
@@ -802,8 +801,8 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
                   className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
-                  Dica: os botoes salvam como texto formatado. No Gmail, negrito, links e listas
-                  saem como HTML no envio.
+                  Tip: buttons save as formatted text. In Gmail, bold, links, and lists are sent as
+                  HTML.
                 </p>
               </label>
             </div>
@@ -831,7 +830,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-[#2C3E50] transition hover:bg-slate-50"
           >
             <CheckCircle2 className="h-4 w-4" />
-            Revisar campanha
+            Review campaign
           </Link>
           <button
             type="submit"
@@ -839,7 +838,7 @@ export function CadenceEditor({ campaignId }: { campaignId: string }) {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save className="h-4 w-4" />
-            {saving ? 'Salvando...' : 'Salvar cadencia'}
+            {saving ? 'Saving...' : 'Save cadence'}
           </button>
         </div>
       </div>

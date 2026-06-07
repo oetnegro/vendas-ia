@@ -27,9 +27,9 @@ type TokenRow = {
 type ScopeKey = 'read' | 'write' | 'send'
 
 const SCOPE_INFO: { key: ScopeKey; label: string; helper: string; locked?: boolean }[] = [
-  { key: 'read', label: 'Leitura', helper: 'Consultar campanhas, funil, respostas e leads.', locked: true },
-  { key: 'write', label: 'Escrita', helper: 'Criar rascunho de campanha, buscar leads, pausar/retomar.' },
-  { key: 'send', label: 'Envio', helper: 'Reservado para envios (nenhuma tool envia e-mail direto hoje).' },
+  { key: 'read', label: 'Read', helper: 'Query campaigns, funnel, replies, and leads.', locked: true },
+  { key: 'write', label: 'Write', helper: 'Create campaign drafts, find leads, pause/resume.' },
+  { key: 'send', label: 'Send', helper: 'Reserved for sending (no tool sends email directly today).' },
 ]
 
 async function getAccessToken(): Promise<string | null> {
@@ -62,7 +62,7 @@ export function McpIntegrationPanel() {
     setError(null)
     const accessToken = await getAccessToken()
     if (!accessToken) {
-      setError('Sessão não encontrada. Recarregue a página.')
+      setError('Session not found. Reload the page.')
       setLoading(false)
       return
     }
@@ -71,7 +71,7 @@ export function McpIntegrationPanel() {
     })
     const json = await res.json()
     if (!res.ok) {
-      setError(json.error || 'Falha ao carregar tokens.')
+      setError(json.error || 'Failed to load tokens.')
       setLoading(false)
       return
     }
@@ -89,7 +89,7 @@ export function McpIntegrationPanel() {
   const handleCreate = async () => {
     if (!workspace) return
     if (!name.trim()) {
-      setError('Dê um nome ao token (ex.: "Claude Desktop do João").')
+      setError('Give the token a name (e.g., "John\'s Claude Desktop").')
       return
     }
     setCreating(true)
@@ -98,7 +98,7 @@ export function McpIntegrationPanel() {
 
     const accessToken = await getAccessToken()
     if (!accessToken) {
-      setError('Sessão não encontrada. Recarregue a página.')
+      setError('Session not found. Reload the page.')
       setCreating(false)
       return
     }
@@ -111,7 +111,7 @@ export function McpIntegrationPanel() {
     })
     const json = await res.json()
     if (!res.ok) {
-      setError(json.error || 'Falha ao gerar token.')
+      setError(json.error || 'Failed to generate token.')
       setCreating(false)
       return
     }
@@ -138,26 +138,26 @@ export function McpIntegrationPanel() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  const claudeCommand = `claude mcp add --transport http vendas-ia ${mcpUrl} --header "Authorization: Bearer SEU_TOKEN"`
+  const claudeCommand = `claude mcp add --transport http vendas-ia ${mcpUrl} --header "Authorization: Bearer YOUR_TOKEN"`
 
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-sm font-medium text-yellow-600">Configurações</p>
-        <h1 className="mt-2 text-3xl font-semibold text-slate-950">Integração MCP</h1>
+        <p className="text-sm font-medium text-yellow-600">Settings</p>
+        <h1 className="mt-2 text-3xl font-semibold text-slate-950">MCP Integration</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Conecte o Vendas+IA ao Claude Desktop, Cursor ou Codex e opere a plataforma por linguagem
-          natural: &quot;quantos leads responderam essa semana?&quot;, &quot;cria um rascunho de campanha pra CTOs de
-          SaaS&quot;, &quot;pausa a campanha X&quot;. Gere um token de acesso abaixo.
+          Connect Vendas+IA to Claude Desktop, Cursor, or Codex and operate the platform in natural
+          language: &quot;how many leads replied this week?&quot;, &quot;create a campaign draft for SaaS CTOs&quot;,
+          &quot;pause campaign X&quot;. Generate an access token below.
         </p>
       </div>
 
       {/* Geração de token */}
       <section className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-sm font-semibold text-slate-950">Gerar novo token</h2>
+        <h2 className="text-sm font-semibold text-slate-950">Generate new token</h2>
         <p className="mt-1 text-sm text-slate-500">
-          O token aparece <strong>uma única vez</strong>. Copie e guarde com segurança — ele não será
-          exibido novamente.
+          The token is shown <strong>only once</strong>. Copy and store it securely — it will not be
+          displayed again.
         </p>
 
         <div className="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
@@ -165,7 +165,7 @@ export function McpIntegrationPanel() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nome do token (ex.: Claude Desktop do João)"
+            placeholder="Token name (e.g., John's Claude Desktop)"
             disabled={creating || !workspace}
             className="rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none focus:border-slate-500 disabled:bg-slate-100"
           />
@@ -176,7 +176,7 @@ export function McpIntegrationPanel() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-            Gerar token
+            Generate token
           </button>
         </div>
 
@@ -198,7 +198,7 @@ export function McpIntegrationPanel() {
               <span>
                 <span className="block text-sm font-semibold text-slate-900">
                   {scope.label}
-                  {scope.locked ? ' (sempre)' : ''}
+                  {scope.locked ? ' (always)' : ''}
                 </span>
                 <span className="block text-xs leading-5 text-slate-500">{scope.helper}</span>
               </span>
@@ -210,7 +210,7 @@ export function McpIntegrationPanel() {
           <div className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4">
             <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-900">
               <TriangleAlert className="h-4 w-4" />
-              Copie agora — não será exibido de novo.
+              Copy now — it will not be shown again.
             </p>
             <div className="mt-3 flex items-center gap-2">
               <code className="flex-1 overflow-x-auto rounded border border-amber-200 bg-white px-3 py-2 text-xs text-slate-800">
@@ -222,7 +222,7 @@ export function McpIntegrationPanel() {
                 className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100"
               >
                 {copied === 'token' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                Copiar
+                Copy
               </button>
             </div>
           </div>
@@ -237,13 +237,13 @@ export function McpIntegrationPanel() {
 
       {/* Lista de tokens */}
       <section className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-sm font-semibold text-slate-950">Tokens do workspace</h2>
+        <h2 className="text-sm font-semibold text-slate-950">Workspace tokens</h2>
         {loading || workspaceLoading ? (
           <p className="mt-3 inline-flex items-center gap-2 text-sm text-slate-600">
-            <Loader2 className="h-4 w-4 animate-spin" /> Carregando...
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading...
           </p>
         ) : tokens.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">Nenhum token gerado ainda.</p>
+          <p className="mt-3 text-sm text-slate-500">No tokens generated yet.</p>
         ) : (
           <div className="mt-4 divide-y divide-slate-100">
             {tokens.map((t) => (
@@ -253,17 +253,17 @@ export function McpIntegrationPanel() {
                     {t.name}
                     {t.revoked_at ? (
                       <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-                        revogado
+                        revoked
                       </span>
                     ) : (
                       <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                        ativo
+                        active
                       </span>
                     )}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    <code>{t.token_prefix}…</code> · scopes: {t.scopes.join(', ')} · último uso:{' '}
-                    {t.last_used_at ? new Date(t.last_used_at).toLocaleString('pt-BR') : 'nunca'}
+                    <code>{t.token_prefix}…</code> · scopes: {t.scopes.join(', ')} · last used:{' '}
+                    {t.last_used_at ? new Date(t.last_used_at).toLocaleString('en-US') : 'never'}
                   </p>
                 </div>
                 {!t.revoked_at ? (
@@ -272,7 +272,7 @@ export function McpIntegrationPanel() {
                     onClick={() => handleRevoke(t.id)}
                     className="inline-flex items-center gap-1 self-start rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                   >
-                    <Trash2 className="h-3.5 w-3.5" /> Revogar
+                    <Trash2 className="h-3.5 w-3.5" /> Revoke
                   </button>
                 ) : null}
               </div>
@@ -284,11 +284,11 @@ export function McpIntegrationPanel() {
       {/* Instruções de conexão */}
       <section className="rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
-          <Plug className="h-4 w-4 text-yellow-600" /> Como conectar
+          <Plug className="h-4 w-4 text-yellow-600" /> How to connect
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          No terminal (com o Claude Code/Desktop instalado), rode o comando abaixo trocando{' '}
-          <code>SEU_TOKEN</code> pelo token que você gerou:
+          In your terminal (with Claude Code/Desktop installed), run the command below replacing{' '}
+          <code>YOUR_TOKEN</code> with the token you generated:
         </p>
         <div className="mt-3 flex items-center gap-2">
           <code className="flex-1 overflow-x-auto rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800">
@@ -300,7 +300,7 @@ export function McpIntegrationPanel() {
             className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
           >
             {copied === 'command' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            Copiar
+            Copy
           </button>
         </div>
         <p className="mt-3 text-xs text-slate-500">
@@ -308,8 +308,7 @@ export function McpIntegrationPanel() {
         </p>
         <p className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          Nenhuma tool envia e-mail diretamente. Envios sempre passam pelo fluxo de aprovação da
-          plataforma.
+          No tool sends email directly. All sends go through the platform&apos;s approval flow.
         </p>
       </section>
     </div>

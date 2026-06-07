@@ -1,7 +1,7 @@
 import { CampaignBuilder } from '@/components/campaigns/campaign-builder'
 
 export const metadata = {
-  title: 'Nova campanha | Vendas+IA App',
+  title: 'New Campaign | Vendas+IA',
 }
 
 export default function NewCampaignPage() {

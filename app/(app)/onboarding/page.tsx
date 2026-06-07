@@ -1,7 +1,7 @@
 import { OnboardingForm } from '@/components/onboarding/onboarding-form'
 
 export const metadata = {
-  title: 'Agente IA | Vendas+IA App',
+  title: 'AI Agent | Vendas+IA',
 }
 
 export default function OnboardingPage() {

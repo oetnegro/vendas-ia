@@ -58,29 +58,29 @@ export default function ConfigurarPage() {
 
   const setupSteps = [
     {
-      label: 'Conectar conta Google',
-      description: 'Autorize o Gmail — sem isso nenhum email sai ou chega.',
+      label: 'Connect Google account',
+      description: 'Authorize Gmail — without this no email can be sent or received.',
       href: '/settings/google',
       icon: Mail,
       done: status?.google ?? false,
     },
     {
-      label: 'Treinar o agente IA',
-      description: 'Configure a personalidade, o produto e o objetivo da sua IA.',
+      label: 'Train the AI agent',
+      description: 'Configure the personality, product, and goal of your AI.',
       href: '/onboarding',
       icon: Bot,
       done: status?.agent ?? false,
     },
     {
-      label: 'Importar leads',
-      description: 'Suba uma lista de contatos em CSV para prospectar.',
+      label: 'Import leads',
+      description: 'Upload a CSV contact list to start prospecting.',
       href: '/leads/import',
       icon: FileText,
       done: status?.leads ?? false,
     },
     {
-      label: 'Criar uma campanha',
-      description: 'Monte a cadência de emails que a IA vai disparar.',
+      label: 'Create a campaign',
+      description: 'Build the email cadence the AI will run.',
       href: '/campaigns/new',
       icon: FileText,
       done: status?.campaign ?? false,
@@ -94,10 +94,10 @@ export default function ConfigurarPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <p className="text-sm font-semibold text-[#B98A1D]">Configurar</p>
-        <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Setup da plataforma</h1>
+        <p className="text-sm font-semibold text-[#B98A1D]">Setup</p>
+        <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Platform setup</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Configure o agente, o email e as campanhas antes de comecar a prospectar.
+          Configure the agent, email, and campaigns before you start prospecting.
         </p>
       </div>
 
@@ -107,14 +107,14 @@ export default function ConfigurarPage() {
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-[#2C3E50]">
               <CheckCircle2 className={`h-5 w-5 ${allDone ? 'text-green-500' : 'text-slate-300'}`} />
-              Checklist de ativacao
+              Activation checklist
             </h2>
             <p className="mt-1 text-sm text-slate-500">
               {workspaceLoading || !status
-                ? 'Verificando...'
+                ? 'Checking...'
                 : allDone
-                  ? 'Tudo pronto! Sua plataforma esta configurada.'
-                  : `${completedCount} de ${setupSteps.length} etapas concluidas`}
+                  ? 'All done! Your platform is fully configured.'
+                  : `${completedCount} of ${setupSteps.length} steps completed`}
             </p>
           </div>
           {!workspaceLoading && status && (
@@ -167,7 +167,7 @@ export default function ConfigurarPage() {
                 <p className="mt-1 text-xs text-slate-500">{step.description}</p>
                 {!step.done && (
                   <p className="mt-3 text-xs font-bold text-[#B98A1D] group-hover:underline">
-                    Configurar →
+                    Set up →
                   </p>
                 )}
               </Link>
@@ -181,9 +181,9 @@ export default function ConfigurarPage() {
         <div className="flex items-center gap-3 border-b border-slate-100 px-6 py-4">
           <FlaskConical className="h-5 w-5 text-[#B98A1D]" />
           <div>
-            <h2 className="text-lg font-bold text-[#2C3E50]">Teste operacional</h2>
+            <h2 className="text-lg font-bold text-[#2C3E50]">Operational test</h2>
             <p className="text-sm text-slate-500">
-              Envie um email de teste para verificar se o agente esta respondendo corretamente.
+              Send a test email to verify the agent is responding correctly.
             </p>
           </div>
         </div>

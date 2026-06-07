@@ -1,7 +1,7 @@
 import { AuthForm } from '@/components/auth/auth-form'
 
 export const metadata = {
-  title: 'Entrar | Vendas+IA App',
+  title: 'Sign In | Vendas+IA',
 }
 
 export default function LoginPage() {

@@ -42,7 +42,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
 
     if (isSignup && !result.data.session) {
-      setMessage('Conta criada. Verifique seu e-mail para confirmar o acesso.')
+      setMessage('Account created. Check your email to confirm access.')
       return
     }
 
@@ -86,25 +86,25 @@ export function AuthForm({ mode }: AuthFormProps) {
               Self-service
             </p>
             <h1 className="mt-5 text-5xl font-semibold leading-tight">
-              Prospecção por e-mail com IA treinada no seu negócio.
+              AI-powered email prospecting trained on your business.
             </h1>
             <p className="mt-5 text-lg text-slate-300">
-              Primeiro a IA entende seu contexto, objeções e objetivo. Depois ela sugere
-              cadências, templates e horários para operar com aprovação humana.
+              First the AI understands your context, objections, and goal. Then it suggests
+              cadences, templates, and send windows — operating with human approval.
             </p>
           </div>
 
-          <p className="text-sm text-slate-500">Landing preservada no domínio principal.</p>
+          <p className="text-sm text-slate-500">Landing page preserved on the main domain.</p>
         </section>
 
         <section className="flex items-center justify-center px-5 py-10">
           <div className="w-full max-w-md rounded-lg border border-white/10 bg-white p-6 text-slate-950 shadow-2xl">
             <div>
-              <h2 className="text-2xl font-semibold">{isSignup ? 'Criar conta' : 'Entrar'}</h2>
+              <h2 className="text-2xl font-semibold">{isSignup ? 'Create account' : 'Sign in'}</h2>
               <p className="mt-2 text-sm text-slate-600">
                 {isSignup
-                  ? 'Crie sua conta e conecte o Gmail em menos de 5 minutos.'
-                  : 'Bem-vindo de volta. Entre para continuar.'}
+                  ? 'Create your account and connect Gmail in under 5 minutes.'
+                  : 'Welcome back. Sign in to continue.'}
               </p>
             </div>
 
@@ -115,18 +115,18 @@ export function AuthForm({ mode }: AuthFormProps) {
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Mail className="h-4 w-4" />
-              Continuar com Google
+              Continue with Google
             </button>
 
             <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
               <span className="h-px flex-1 bg-slate-200" />
-              ou
+              or
               <span className="h-px flex-1 bg-slate-200" />
             </div>
 
             <form onSubmit={handleEmailAuth} className="space-y-4">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">E-mail</span>
+                <span className="text-sm font-medium text-slate-700">Email</span>
                 <input
                   type="email"
                   required
@@ -137,7 +137,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Senha</span>
+                <span className="text-sm font-medium text-slate-700">Password</span>
                 <input
                   type="password"
                   required
@@ -165,17 +165,17 @@ export function AuthForm({ mode }: AuthFormProps) {
                 disabled={loading}
                 className="w-full rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? 'Processando...' : isSignup ? 'Criar conta' : 'Entrar'}
+                {loading ? 'Processing...' : isSignup ? 'Create account' : 'Sign in'}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm text-slate-600">
-              {isSignup ? 'Já tem conta?' : 'Ainda não tem conta?'}{' '}
+              {isSignup ? 'Already have an account?' : "Don't have an account yet?"}{' '}
               <Link
                 href={isSignup ? '/login' : '/signup'}
                 className="font-semibold text-slate-950 underline decoration-yellow-400 decoration-2 underline-offset-4"
               >
-                {isSignup ? 'Entrar' : 'Criar conta'}
+                {isSignup ? 'Sign in' : 'Create account'}
               </Link>
             </p>
           </div>

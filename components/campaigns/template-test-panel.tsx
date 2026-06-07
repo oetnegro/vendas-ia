@@ -104,7 +104,7 @@ export function TemplateTestPanel({
     event.preventDefault()
 
     if (!selectedLead || !selectedStep) {
-      setError('Selecione um lead e um passo da cadencia.')
+      setError('Select a lead and a cadence step.')
       return
     }
 
@@ -117,7 +117,7 @@ export function TemplateTestPanel({
     const token = sessionData.session?.access_token
 
     if (!token) {
-      setError('Sessao expirada. Faça login novamente.')
+      setError('Session expired. Please sign in again.')
       setSending(false)
       return
     }
@@ -147,28 +147,28 @@ export function TemplateTestPanel({
     setSending(false)
 
     if (!response.ok || !json.ok) {
-      setError(json.error || 'Nao foi possivel enviar o template.')
+      setError(json.error || 'Could not send the template.')
       return
     }
 
-    setResult(`Template enviado para ${json.to}. Gmail message id: ${json.messageId}.`)
+    setResult(`Template sent to ${json.to}. Gmail message id: ${json.messageId}.`)
   }
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#B98A1D]">Teste de variaveis</p>
-          <h2 className="mt-1 text-lg font-bold text-[#2C3E50]">Enviar template para um lead</h2>
+          <p className="text-sm font-semibold text-[#B98A1D]">Variable test</p>
+          <h2 className="mt-1 text-lg font-bold text-[#2C3E50]">Send template to a lead</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Escolha um lead e um email da cadencia para ver como as variaveis ficam antes do envio.
+            Choose a lead and a cadence email to preview how variables render before sending.
           </p>
         </div>
         <Sparkles className="hidden h-6 w-6 text-[#B98A1D] md:block" />
       </div>
 
       {loading ? (
-        <p className="mt-5 text-sm text-slate-500">Carregando leads e templates...</p>
+        <p className="mt-5 text-sm text-slate-500">Loading leads and templates...</p>
       ) : (
         <form onSubmit={handleSubmit} className="mt-5 grid gap-5">
           <div className="grid gap-4 md:grid-cols-2">
@@ -189,7 +189,7 @@ export function TemplateTestPanel({
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Email da cadencia</span>
+              <span className="text-sm font-semibold text-slate-700">Cadence email</span>
               <select
                 value={stepId}
                 onChange={(event) => setStepId(event.target.value)}
@@ -206,7 +206,7 @@ export function TemplateTestPanel({
 
           <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
             <aside className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <h3 className="text-sm font-bold text-[#2C3E50]">Variaveis disponiveis</h3>
+              <h3 className="text-sm font-bold text-[#2C3E50]">Available variables</h3>
               <div className="mt-3 flex flex-wrap gap-2">
                 {Object.entries(variables).map(([key, value]) => (
                   <span
@@ -223,16 +223,16 @@ export function TemplateTestPanel({
             <article className="rounded-lg border border-slate-200 bg-slate-950 p-4 text-slate-100">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#F4D58D]">
                 <Mail className="h-4 w-4" />
-                Preview renderizado
+                Rendered preview
               </div>
-              <h3 className="mt-4 text-sm font-bold">{preview.subject || 'Sem assunto'}</h3>
+              <h3 className="mt-4 text-sm font-bold">{preview.subject || 'No subject'}</h3>
               {previewHtml ? (
                 <div
                   className="email-preview mt-3 text-sm leading-6 text-slate-200"
                   dangerouslySetInnerHTML={{ __html: previewHtml }}
                 />
               ) : (
-                <p className="mt-3 text-sm leading-6 text-slate-200">Sem corpo</p>
+                <p className="mt-3 text-sm leading-6 text-slate-200">No body</p>
               )}
             </article>
           </div>
@@ -258,7 +258,7 @@ export function TemplateTestPanel({
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               <Send className="h-4 w-4" />
-              {sending ? 'Enviando...' : 'Enviar template real'}
+              {sending ? 'Sending...' : 'Send real template'}
             </button>
           </div>
         </form>

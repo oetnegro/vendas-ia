@@ -46,7 +46,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
           <div className="mx-auto mb-4 h-9 w-9 animate-pulse rounded-full bg-yellow-400" />
-          <p className="text-sm text-slate-300">Validando sessão...</p>
+          <p className="text-sm text-slate-300">Validating session...</p>
         </div>
       </main>
     )

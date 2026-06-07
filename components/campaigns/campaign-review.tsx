@@ -52,8 +52,8 @@ type SendingWindow = {
 
 function formatSendingWindow(value: Json) {
   const windowValue = (value || {}) as SendingWindow
-  const days = windowValue.days?.length ? windowValue.days.join(', ') : 'dias uteis'
-  const timezone = windowValue.timezone || 'America/Sao_Paulo'
+  const days = windowValue.days?.length ? windowValue.days.join(', ') : 'business days'
+  const timezone = windowValue.timezone || 'America/New_York'
   const time = windowValue.time || windowValue.blocks?.[0] || windowValue.start || '09:00'
   const spacing = Number(windowValue.spacing_minutes || 4)
   const blocks = Array.isArray(windowValue.blocks) && windowValue.blocks.length
@@ -63,7 +63,7 @@ function formatSendingWindow(value: Json) {
   const end = windowValue.end || '17:00'
 
   if (windowValue.mode === 'single' || windowValue.time) {
-    return `${time} (${timezone}), ${spacing} min entre envios, ${days}`
+    return `${time} (${timezone}), ${spacing} min between sends, ${days}`
   }
 
   return blocks ? `${blocks}, ${days}` : `${start}-${end}, ${days}`
@@ -151,55 +151,55 @@ export function CampaignReview({ campaignId }: { campaignId: string }) {
     () => [
       {
         key: 'agent',
-        title: 'Agente treinado',
-        helper: 'Existe pelo menos um agente com contexto do negocio neste workspace.',
+        title: 'AI Agent trained',
+        helper: 'At least one agent with business context exists in this workspace.',
         ok: review.agentCount > 0,
         href: '/onboarding',
-        action: 'Configurar agente',
+        action: 'Configure agent',
         icon: Sparkles,
       },
       {
         key: 'leads',
-        title: 'Leads importados',
-        helper: `${review.leadCount} lead(s) disponiveis para prospeccao.`,
+        title: 'Leads imported',
+        helper: `${review.leadCount} lead(s) available for prospecting.`,
         ok: review.leadCount > 0,
         href: '/leads/import',
-        action: 'Importar leads',
+        action: 'Import leads',
         icon: Users,
       },
       {
         key: 'google',
-        title: 'Google conectado',
+        title: 'Google connected',
         helper: review.googleEmail
-          ? `Conta conectada: ${review.googleEmail}`
-          : 'Conecte Gmail e Calendar antes de aprovar.',
+          ? `Connected account: ${review.googleEmail}`
+          : 'Connect Gmail and Calendar before approving.',
         ok: review.googleConnected,
         href: '/settings/google',
-        action: 'Conectar Google',
+        action: 'Connect Google',
         icon: Mail,
       },
       {
         key: 'cadence',
-        title: 'Cadencia pronta',
-        helper: `${review.stepCount} email(s) configurados para esta campanha.`,
+        title: 'Cadence ready',
+        helper: `${review.stepCount} email(s) configured for this campaign.`,
         ok: review.stepCount > 0,
         href: `/campaigns/${campaignId}/cadence`,
-        action: 'Editar cadencia',
+        action: 'Edit cadence',
         icon: FileText,
       },
       {
         key: 'limits',
-        title: 'Limites saudaveis',
-        helper: `${review.campaign?.daily_send_limit || 0}/dia e ${
+        title: 'Healthy limits',
+        helper: `${review.campaign?.daily_send_limit || 0}/day and ${
           review.campaign?.monthly_lead_limit || 0
-        }/mes.`,
+        }/month.`,
         ok:
           Boolean(review.campaign) &&
           review.campaign!.daily_send_limit > 0 &&
           review.campaign!.monthly_lead_limit > 0 &&
           review.campaign!.daily_send_limit <= review.campaign!.monthly_lead_limit,
         href: '/campaigns',
-        action: 'Revisar volume',
+        action: 'Review volume',
         icon: ShieldCheck,
       },
     ],
@@ -220,7 +220,7 @@ export function CampaignReview({ campaignId }: { campaignId: string }) {
     const token = sessionData.session?.access_token
 
     if (!token) {
-      setError('Sessao expirada. Entre novamente para aprovar a campanha.')
+      setError('Session expired. Sign in again to approve the campaign.')
       setApproving(false)
       return
     }
@@ -242,7 +242,7 @@ export function CampaignReview({ campaignId }: { campaignId: string }) {
     }
 
     if (!response.ok || !json.campaign) {
-      setError(json.error || 'Nao foi possivel aprovar a campanha.')
+      setError(json.error || 'Could not approve the campaign.')
       setApproving(false)
       return
     }
@@ -259,20 +259,20 @@ export function CampaignReview({ campaignId }: { campaignId: string }) {
           }
         : current.campaign,
     }))
-    setMessage('Campanha aprovada e confirmada no banco.')
+    setMessage('Campaign approved and confirmed in the database.')
     setApproving(false)
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-500">Carregando revisao...</p>
+    return <p className="text-sm text-slate-500">Loading review...</p>
   }
 
   if (!review.campaign) {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <h1 className="text-2xl font-semibold text-[#2C3E50]">Campanha nao encontrada</h1>
+        <h1 className="text-2xl font-semibold text-[#2C3E50]">Campaign not found</h1>
         <Link href="/campaigns" className="mt-5 inline-flex text-sm font-semibold text-[#2C3E50]">
-          Voltar para campanhas
+          Back to campaigns
         </Link>
       </section>
     )
@@ -287,13 +287,13 @@ export function CampaignReview({ campaignId }: { campaignId: string }) {
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#2C3E50]"
           >
             <ArrowLeft className="h-4 w-4" />
-            Cadencia
+            Cadence
           </Link>
-          <p className="mt-4 text-sm font-semibold text-[#B98A1D]">Revisao</p>
+          <p className="mt-4 text-sm font-semibold text-[#B98A1D]">Review</p>
           <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">{review.campaign.name}</h1>
           <p className="mt-2 max-w-3xl text-sm text-slate-600">
-            Confira os requisitos minimos antes de aprovar. Aprovar muda o status da campanha, mas
-            ainda nao dispara emails automaticamente.
+            Check the minimum requirements before approving. Approving changes the campaign status but
+            does not yet trigger automatic email sending.
           </p>
         </div>
 

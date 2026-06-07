@@ -19,7 +19,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
     event.preventDefault()
 
     if (!workspace) {
-      setError('Selecione um workspace antes de enviar teste.')
+      setError('Select a workspace before sending a test.')
       return
     }
 
@@ -32,7 +32,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
     const token = sessionData.session?.access_token
 
     if (!token) {
-      setError('Sessao expirada. Faça login novamente.')
+      setError('Session expired. Please sign in again.')
       setSending(false)
       return
     }
@@ -62,21 +62,21 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
     setSending(false)
 
     if (!response.ok || !json.ok) {
-      setError(json.error || 'Nao foi possivel enviar o teste.')
+      setError(json.error || 'Could not send the test email.')
       return
     }
 
-    setResult(`Enviado de ${json.from} para ${json.to}. Gmail message id: ${json.messageId}.`)
+    setResult(`Sent from ${json.from} to ${json.to}. Gmail message id: ${json.messageId}.`)
   }
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#B98A1D]">Teste operacional</p>
-          <h2 className="mt-1 text-lg font-bold text-[#2C3E50]">Enviar e-mail de teste</h2>
+          <p className="text-sm font-semibold text-[#B98A1D]">Operational test</p>
+          <h2 className="mt-1 text-lg font-bold text-[#2C3E50]">Send test email</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Valida Gmail API, token do workspace e entrega antes da engine automatica.
+            Validates Gmail API, workspace token, and delivery before the automatic engine.
           </p>
         </div>
         <Mail className="hidden h-6 w-6 text-[#B98A1D] md:block" />
@@ -84,7 +84,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
 
       <form onSubmit={handleSubmit} className="mt-5 grid gap-4">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">Destinatario</span>
+          <span className="text-sm font-semibold text-slate-700">Recipient</span>
           <input
             type="email"
             required
@@ -95,7 +95,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">Assunto</span>
+          <span className="text-sm font-semibold text-slate-700">Subject</span>
           <input
             required
             value={subject}
@@ -105,7 +105,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">Mensagem</span>
+          <span className="text-sm font-semibold text-slate-700">Message</span>
           <textarea
             required
             rows={5}
@@ -136,7 +136,7 @@ export function TestEmailPanel({ workspace }: { workspace: WorkspaceSummary | nu
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             <Send className="h-4 w-4" />
-            {sending ? 'Enviando...' : 'Enviar teste real'}
+            {sending ? 'Sending...' : 'Send real test'}
           </button>
         </div>
       </form>

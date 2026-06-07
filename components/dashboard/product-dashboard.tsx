@@ -62,7 +62,7 @@ type DashData = {
 // ─────────────────────── Helpers ───────────────────────
 
 function stepLabel(n: number) {
-  if (n === 1) return '1ª Mensagem'
+  if (n === 1) return '1st Email'
   if (n === 2) return 'Follow Up'
   return `Follow Up ${n - 1}`
 }
@@ -188,25 +188,25 @@ export function ProductDashboard() {
 
     const stageFunnelRows = [
       {
-        label: 'Qualificados',
+        label: 'Qualified',
         count: (byStatus.replied ?? 0) + (byStatus.interested ?? 0) + (byStatus.meeting_booked ?? 0),
         filter: 'status:qualified',
         type: 'stage' as const,
       },
       {
-        label: 'Demonstrou Interesse',
+        label: 'Showed Interest',
         count: (byStatus.interested ?? 0) + (byStatus.meeting_booked ?? 0),
         filter: 'status:interested',
         type: 'stage' as const,
       },
       {
-        label: 'Agendamento',
+        label: 'Meeting Booked',
         count: byStatus.meeting_booked ?? 0,
         filter: 'status:meeting_booked',
         type: 'stage' as const,
       },
       {
-        label: 'Negativa',
+        label: 'Negative',
         count: (byStatus.negative ?? 0) + (byStatus.opted_out ?? 0),
         filter: 'status:negative',
         type: 'stage' as const,
@@ -232,52 +232,52 @@ export function ProductDashboard() {
   const metricCards = [
     {
       href: '/leads?filter=acionados',
-      title: 'Leads Acionados',
+      title: 'Contacted Leads',
       value: metrics?.acionados ?? 0,
-      helper: 'Receberam ao menos 1 mensagem',
+      helper: 'Received at least 1 message',
       icon: Users,
       color: 'bg-[#2C3E50]',
     },
     {
       href: '/leads?filter=responderam',
-      title: 'Taxa de Resposta',
+      title: 'Reply Rate',
       value: `${metrics?.replyRate ?? 0}%`,
-      helper: `${metrics?.inboundMonth ?? 0} respostas no mes`,
+      helper: `${metrics?.inboundMonth ?? 0} replies this month`,
       icon: BarChart3,
       color: 'bg-blue-600',
     },
     {
       href: '/leads?filter=status:qualified',
-      title: 'Qualificados',
+      title: 'Qualified',
       value:
         (metrics?.byStatus.replied ?? 0) +
         (metrics?.byStatus.interested ?? 0) +
         (metrics?.byStatus.meeting_booked ?? 0),
-      helper: 'Responderam com interesse',
+      helper: 'Replied with interest',
       icon: MessageCircleReply,
       color: 'bg-violet-600',
     },
     {
       href: '/leads?filter=status:interested',
-      title: 'Interessados',
+      title: 'Interested',
       value: metrics?.byStatus.interested ?? 0,
-      helper: 'Sinal positivo recebido',
+      helper: 'Positive signal received',
       icon: HeartHandshake,
       color: 'bg-orange-600',
     },
     {
       href: '/leads?filter=status:meeting_booked',
-      title: 'Agendamentos',
+      title: 'Meetings Booked',
       value: metrics?.byStatus.meeting_booked ?? 0,
-      helper: 'Reunioes marcadas',
+      helper: 'Meetings scheduled',
       icon: CalendarCheck,
       color: 'bg-green-600',
     },
     {
       href: '/leads?filter=status:negative',
-      title: 'Negativos',
+      title: 'Negative',
       value: (metrics?.byStatus.negative ?? 0) + (metrics?.byStatus.opted_out ?? 0),
-      helper: 'Recusaram ou pediram saida',
+      helper: 'Declined or opted out',
       icon: ThumbsDown,
       color: 'bg-red-600',
     },
@@ -288,8 +288,8 @@ export function ProductDashboard() {
     return (
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold text-[#B98A1D]">Dashboard</p>
-        <h1 className="mt-2 text-2xl font-bold text-[#2C3E50]">Crie um workspace primeiro</h1>
-        <p className="mt-2 text-sm text-slate-500">O dashboard usa dados por workspace.</p>
+        <h1 className="mt-2 text-2xl font-bold text-[#2C3E50]">Create a workspace first</h1>
+        <p className="mt-2 text-sm text-slate-500">Dashboard data is scoped to your workspace.</p>
       </section>
     )
   }
@@ -301,21 +301,21 @@ export function ProductDashboard() {
         <div>
           <p className="text-sm font-semibold text-[#B98A1D]">Dashboard</p>
           <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">
-            {workspace ? workspace.name : 'Produto self-service'}
+            {workspace ? workspace.name : 'Self-service product'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-            Mesa de controle: volume, respostas, interessados, agendamentos e negativas.
+            Control center: volume, replies, interested leads, meetings, and negatives.
           </p>
           {/* Campaign selector */}
           {dash && dash.campaigns.length > 0 && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-500">Campanha:</span>
+              <span className="text-xs font-semibold text-slate-500">Campaign:</span>
               <select
                 value={selectedCampaignId}
                 onChange={(e) => setSelectedCampaignId(e.target.value)}
                 className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-[#2C3E50] outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
               >
-                <option value="all">Todas as campanhas</option>
+                <option value="all">All campaigns</option>
                 {dash.campaigns.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -330,7 +330,7 @@ export function ProductDashboard() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#34495E]"
         >
           <FileUp className="h-4 w-4" />
-          {workspace ? 'Importar leads' : 'Comecar onboarding'}
+          {workspace ? 'Import leads' : 'Start onboarding'}
         </Link>
       </div>
 
@@ -340,16 +340,16 @@ export function ProductDashboard() {
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-[#2C3E50]">
               <Target className="h-5 w-5 text-[#B98A1D]" />
-              Overview operacional
+              Operational Overview
             </h2>
-            <p className="mt-1 text-sm text-slate-500">Mes atual · clique num card para ver os leads</p>
+            <p className="mt-1 text-sm text-slate-500">Current month · click a card to view leads</p>
           </div>
           <Link
             href="/inbox"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#34495E]"
           >
             <Inbox className="h-4 w-4" />
-            Ver conversas
+            View inbox
           </Link>
         </div>
 
@@ -382,17 +382,17 @@ export function ProductDashboard() {
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="flex items-center gap-2 text-lg font-bold text-[#2C3E50]">
           <BarChart3 className="h-5 w-5 text-[#B98A1D]" />
-          Funil de prospeccao
+          Prospecting Funnel
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          Cadencia por etapa configurada + estagio de qualificacao. Clique para ver os leads.
+          Cadence by step + qualification stage. Click to view leads.
         </p>
         <div className="mt-5 overflow-hidden rounded-lg border border-slate-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3 font-bold">Etapa</th>
-                <th className="px-4 py-3 text-right font-bold">Qtd</th>
+                <th className="px-4 py-3 font-bold">Stage</th>
+                <th className="px-4 py-3 text-right font-bold">Count</th>
                 <th className="px-4 py-3 text-right font-bold">%</th>
               </tr>
             </thead>
@@ -415,7 +415,7 @@ export function ProductDashboard() {
                           colSpan={3}
                           className="px-4 py-1.5 text-[10px] font-bold uppercase text-slate-400"
                         >
-                          Qualificacao
+                          Qualification
                         </td>
                       </tr>
                     )}
@@ -446,7 +446,7 @@ export function ProductDashboard() {
               {!isLoading && (!metrics || metrics.funnelRows.every((r) => r.count === 0)) && (
                 <tr>
                   <td colSpan={3} className="px-4 py-4 text-sm text-slate-400">
-                    Nenhum dado ainda — envie a primeira campanha para ver o funil.
+                    No data yet — send your first campaign to see the funnel.
                   </td>
                 </tr>
               )}

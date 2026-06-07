@@ -65,7 +65,7 @@ const REGION_OPTIONS = [
   'Global / Qualquer país',
 ]
 
-const SIZE_OPTIONS = ['Qualquer porte', 'Startup / PME', 'Empresa média', 'Enterprise']
+const SIZE_OPTIONS = ['Any size', 'Startup / SMB', 'Mid-market', 'Enterprise']
 
 export function EnrichmentPanel() {
   const { workspace, loading: workspaceLoading } = useWorkspace()
@@ -74,7 +74,7 @@ export function EnrichmentPanel() {
     description: '',
     role: '',
     region: 'Brasil',
-    companySize: 'Qualquer porte',
+    companySize: 'Any size',
     extraSignals: '',
   })
 
@@ -133,7 +133,7 @@ export function EnrichmentPanel() {
         }
 
         if (data.status === 'failed') {
-          setError(data.error || 'Busca falhou. Tente novamente.')
+          setError(data.error || 'Search failed. Please try again.')
           setStep('form')
           return
         }
@@ -156,7 +156,7 @@ export function EnrichmentPanel() {
   async function handleSearch() {
     if (!workspace) return
     if (!form.description.trim()) {
-      setError('Descreva quem você quer prospectar antes de buscar.')
+      setError('Describe who you want to prospect before searching.')
       return
     }
 
@@ -166,7 +166,7 @@ export function EnrichmentPanel() {
     try {
       const supabase = getSupabaseBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('Sessão expirada.')
+      if (!session) throw new Error('Session expired.')
 
       const res = await fetch('/api/leads/enrich', {
         method: 'POST',
@@ -192,9 +192,9 @@ export function EnrichmentPanel() {
 
       if (!res.ok) {
         if (data.error === 'quota_exceeded') {
-          setError(`Quota mensal atingida: ${data.used}/${data.cap} leads usados.`)
+          setError(`Monthly quota reached: ${data.used}/${data.cap} leads used.`)
         } else {
-          setError(data.error || 'Erro ao iniciar busca.')
+          setError(data.error || 'Error starting search.')
         }
         setStep('form')
         return
@@ -202,7 +202,7 @@ export function EnrichmentPanel() {
 
       setJobId(data.jobId!)
     } catch (err) {
-      setError((err as Error).message || 'Erro ao conectar.')
+      setError((err as Error).message || 'Connection error.')
       setStep('form')
     }
   }
@@ -215,7 +215,7 @@ export function EnrichmentPanel() {
     try {
       const supabase = getSupabaseBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('Sessão expirada.')
+      if (!session) throw new Error('Session expired.')
 
       const res = await fetch('/api/leads/enrich', {
         method: 'POST',
@@ -238,7 +238,7 @@ export function EnrichmentPanel() {
       }
 
       if (!res.ok) {
-        setError(data.error || 'Erro ao importar.')
+        setError(data.error || 'Error importing leads.')
         return
       }
 
@@ -249,7 +249,7 @@ export function EnrichmentPanel() {
       }))
       setStep('imported')
     } catch (err) {
-      setError((err as Error).message || 'Erro ao importar.')
+      setError((err as Error).message || 'Error importing leads.')
     } finally {
       setImporting(false)
     }
@@ -267,7 +267,7 @@ export function EnrichmentPanel() {
     return (
       <div className="flex items-center gap-3 py-10 text-slate-500">
         <Loader2 className="h-5 w-5 animate-spin" />
-        <span className="text-sm">Carregando workspace…</span>
+        <span className="text-sm">Loading workspace…</span>
       </div>
     )
   }
@@ -279,15 +279,15 @@ export function EnrichmentPanel() {
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#2C3E50]/10">
           <Sparkles className="h-8 w-8 animate-pulse text-[#2C3E50]" />
         </div>
-        <h2 className="text-lg font-bold text-[#2C3E50]">Procurando leads…</h2>
+        <h2 className="text-lg font-bold text-[#2C3E50]">Searching for leads…</h2>
         <p className="max-w-sm text-sm text-slate-600">
-          O agente está escolhendo a melhor estratégia de busca e coletando os leads.
+          The agent is choosing the best search strategy and collecting leads.
           <br />
-          Isso pode levar até 2 minutos.
+          This may take up to 2 minutes.
         </p>
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Consultando fontes de dados…
+          Querying data sources…
         </div>
       </div>
     )
@@ -303,11 +303,11 @@ export function EnrichmentPanel() {
       <div className="space-y-5">
         {/* Header stats */}
         <div className="flex flex-wrap gap-3">
-          <StatChip label="Encontrados" value={preview.result_count ?? leads.length} />
-          <StatChip label="Com e-mail válido" value={preview.valid_count ?? validLeads.length} accent />
+          <StatChip label="Found" value={preview.result_count ?? leads.length} />
+          <StatChip label="With valid email" value={preview.valid_count ?? validLeads.length} accent />
           {quota && (
             <StatChip
-              label={`Quota restante`}
+              label={`Remaining quota`}
               value={`${quota.cap - quota.used} / ${quota.cap}`}
             />
           )}
@@ -315,8 +315,8 @@ export function EnrichmentPanel() {
 
         {validLeads.length === 0 && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            Nenhum lead desta busca tem e-mail detectado automaticamente. Você pode importá-los
-            mesmo assim e adicionar e-mails manualmente depois, ou refinar o ICP e buscar novamente.
+            No leads from this search have an email automatically detected. You can still import them
+            and add emails manually later, or refine the ICP and search again.
           </div>
         )}
 
@@ -326,19 +326,19 @@ export function EnrichmentPanel() {
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  E-mail
+                  Email
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Nome
+                  Name
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Empresa
+                  Company
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Cargo
+                  Title
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Setor
+                  Sector
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Status
@@ -349,10 +349,10 @@ export function EnrichmentPanel() {
               {leads.slice(0, 25).map((lead, i) => (
                 <tr key={i} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-mono text-xs text-slate-700">
-                    {lead.email || <span className="text-slate-400 italic">sem e-mail</span>}
+                    {lead.email || <span className="text-slate-400 italic">no email</span>}
                     {lead.email_guessed && (
                       <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-medium text-amber-700">
-                        inferido
+                        guessed
                       </span>
                     )}
                   </td>
@@ -374,11 +374,11 @@ export function EnrichmentPanel() {
                     {lead.email_valid ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
                         <CheckCircle2 className="h-3 w-3" />
-                        válido
+                        valid
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-                        sem e-mail
+                        no email
                       </span>
                     )}
                   </td>
@@ -403,15 +403,15 @@ export function EnrichmentPanel() {
               <Users className="h-4 w-4" />
             )}
             {importing
-              ? 'Importando…'
-              : `Importar ${validLeads.length > 0 ? validLeads.length : leads.length} leads`}
+              ? 'Importing…'
+              : `Import ${validLeads.length > 0 ? validLeads.length : leads.length} leads`}
           </button>
           <button
             type="button"
             onClick={handleReset}
             className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            Buscar novamente
+            Search again
           </button>
         </div>
       </div>
@@ -428,11 +428,11 @@ export function EnrichmentPanel() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-[#2C3E50]">
-            {preview?.leads_imported} lead(s) importados
+            {preview?.leads_imported} lead(s) imported
           </h2>
           {quota && (
             <p className="mt-1 text-sm text-slate-500">
-              Quota do mês: {quota.used} / {quota.cap} leads usados
+              Monthly quota: {quota.used} / {quota.cap} leads used
             </p>
           )}
         </div>
@@ -441,7 +441,7 @@ export function EnrichmentPanel() {
             href="/leads"
             className="inline-flex items-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white hover:bg-[#34495E]"
           >
-            Ver leads
+            View leads
             <ChevronRight className="h-4 w-4" />
           </a>
           <button
@@ -449,7 +449,7 @@ export function EnrichmentPanel() {
             onClick={handleReset}
             className="rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            Buscar mais leads
+            Search for more leads
           </button>
         </div>
       </div>
@@ -460,29 +460,28 @@ export function EnrichmentPanel() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-semibold text-[#B98A1D]">Buscar com IA</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#2C3E50]">Encontrar leads pelo ICP</h1>
+        <p className="text-sm font-semibold text-[#B98A1D]">AI-powered search</p>
+        <h1 className="mt-1 text-2xl font-bold text-[#2C3E50]">Find leads by ICP</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Descreva quem você quer prospectar. O agente escolhe a melhor fonte de dados,
-          busca os leads e entrega uma lista pronta para importar — sem você precisar
-          configurar nada externo.
+          Describe who you want to prospect. The agent picks the best data source,
+          finds the leads, and delivers a ready-to-import list — no external configuration needed.
         </p>
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-sm font-bold text-[#2C3E50]">Qualificação do ICP</h2>
+        <h2 className="mb-4 text-sm font-bold text-[#2C3E50]">ICP qualification</h2>
 
         <div className="space-y-4">
           {/* Main ICP description */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-              Quem você quer prospectar? <span className="text-red-500">*</span>
+              Who do you want to prospect? <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-              placeholder="Ex: veterinários em São Paulo, CTOs de startups SaaS, donos de clínica odontológica"
+              placeholder="E.g.: vets in São Paulo, SaaS startup CTOs, dental clinic owners"
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-[#F4D58D] focus:outline-none focus:ring-2 focus:ring-[#F4D58D]/40"
             />
           </div>
@@ -491,20 +490,20 @@ export function EnrichmentPanel() {
             {/* Role */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                Cargo ou função-alvo
+                Target role or function
               </label>
               <input
                 type="text"
                 value={form.role}
                 onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
-                placeholder="Ex: CTO, Diretor Comercial, veterinário"
+                placeholder="E.g.: CTO, VP of Sales, veterinarian"
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-[#F4D58D] focus:outline-none focus:ring-2 focus:ring-[#F4D58D]/40"
               />
             </div>
 
             {/* Region */}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700">Região</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-700">Region</label>
               <select
                 value={form.region}
                 onChange={(e) => setForm((p) => ({ ...p, region: e.target.value }))}
@@ -521,7 +520,7 @@ export function EnrichmentPanel() {
             {/* Company size */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                Porte da empresa
+                Company size
               </label>
               <select
                 value={form.companySize}
@@ -539,14 +538,14 @@ export function EnrichmentPanel() {
             {/* Extra signals */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                Sinais extras{' '}
-                <span className="font-normal text-slate-400">(opcional)</span>
+                Extra signals{' '}
+                <span className="font-normal text-slate-400">(optional)</span>
               </label>
               <input
                 type="text"
                 value={form.extraSignals}
                 onChange={(e) => setForm((p) => ({ ...p, extraSignals: e.target.value }))}
-                placeholder="Ex: tem site ativo, faturamento > 1M, região capital"
+                placeholder="E.g.: active website, revenue > 1M, capital city"
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-[#F4D58D] focus:outline-none focus:ring-2 focus:ring-[#F4D58D]/40"
               />
             </div>
@@ -563,19 +562,19 @@ export function EnrichmentPanel() {
             className="inline-flex items-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Sparkles className="h-4 w-4" />
-            Buscar leads com IA
+            Search leads with AI
           </button>
           <p className="text-xs text-slate-400">
-            O agente vai escolher a melhor estratégia automaticamente
+            The agent will automatically choose the best strategy
           </p>
         </div>
       </section>
 
       <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
         <p className="text-xs text-slate-500">
-          <strong className="text-slate-700">Como funciona:</strong> descreva o ICP e o agente
-          escolhe dinamicamente a melhor fonte de dados, coleta os leads e entrega uma
-          pré-visualização antes de importar. Quota de {Number(1000).toLocaleString('pt-BR')} leads/mês por workspace.
+          <strong className="text-slate-700">How it works:</strong> describe the ICP and the agent
+          dynamically picks the best data source, collects leads, and delivers a
+          preview before importing. Quota: {Number(1000).toLocaleString('en-US')} leads/month per workspace.
         </p>
       </div>
     </div>

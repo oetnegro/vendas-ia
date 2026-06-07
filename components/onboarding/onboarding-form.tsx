@@ -55,7 +55,7 @@ export function OnboardingForm() {
 
     if (userError || !userData.user) {
       setLoading(false)
-      setError(userError?.message || 'Sessão não encontrada.')
+      setError(userError?.message || 'Session not found.')
       return
     }
 
@@ -81,7 +81,7 @@ export function OnboardingForm() {
 
       if (workspaceError || !createdWorkspace) {
         setLoading(false)
-        setError(workspaceError?.message || 'Não foi possível criar o workspace.')
+        setError(workspaceError?.message || 'Could not create workspace.')
         return
       }
 
@@ -132,10 +132,10 @@ export function OnboardingForm() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-semibold text-[#B98A1D]">Agente IA</p>
-        <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Treinar o agente</h1>
+        <p className="text-sm font-semibold text-[#B98A1D]">AI Agent</p>
+        <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Train the agent</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Configure a personalidade, o produto e o objetivo da sua IA de prospecção.
+          Configure the personality, product, and goal of your prospecting AI.
         </p>
       </div>
 
@@ -143,16 +143,16 @@ export function OnboardingForm() {
         <div className="grid gap-5">
           {workspaceLoading ? (
             <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-              Verificando workspace...
+              Checking workspace...
             </p>
           ) : workspace ? (
             <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-              Workspace encontrado. Vamos atualizar o agente existente.
+              Workspace found. We will update the existing agent.
             </p>
           ) : null}
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Nome da empresa/workspace</span>
+            <span className="text-sm font-semibold text-slate-700">Company / workspace name</span>
             <input
               required
               value={workspaceName}
@@ -163,66 +163,66 @@ export function OnboardingForm() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Explique o negocio</span>
+            <span className="text-sm font-semibold text-slate-700">Describe the business</span>
             <textarea
               required
               rows={5}
               value={businessContext}
               onChange={(event) => setBusinessContext(event.target.value)}
-              placeholder="O que vocês vendem, para quem vendem, ticket médio, região, diferenciais e tom de voz."
+              placeholder="What you sell, who you sell to, average ticket, region, differentiators, and tone of voice."
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Publico alvo / ICP</span>
+              <span className="text-sm font-semibold text-slate-700">Target audience / ICP</span>
               <textarea
                 rows={4}
                 value={targetAudience}
                 onChange={(event) => setTargetAudience(event.target.value)}
-                placeholder="Ex: donos de agencias com 5 a 50 funcionarios, B2B, Brasil."
+                placeholder="E.g.: agency owners with 5–50 employees, B2B, Brazil."
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
               />
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Proposta de valor</span>
+              <span className="text-sm font-semibold text-slate-700">Value proposition</span>
               <textarea
                 rows={4}
                 value={valueProposition}
                 onChange={(event) => setValueProposition(event.target.value)}
-                placeholder="Ex: reduzir custo de prospeccao e aumentar reunioes qualificadas."
+                placeholder="E.g.: reduce prospecting cost and increase qualified meetings."
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
               />
             </label>
           </div>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Objecoes comuns</span>
+            <span className="text-sm font-semibold text-slate-700">Common objections</span>
             <textarea
               rows={4}
               value={commonObjections}
               onChange={(event) => setCommonObjections(event.target.value)}
-              placeholder="Ex: já tenho fornecedor, não tenho orçamento, não é prioridade, preciso falar com sócio."
+              placeholder="E.g.: already have a vendor, no budget, not a priority, need to talk to my partner."
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Objetivo da campanha</span>
+            <span className="text-sm font-semibold text-slate-700">Campaign goal</span>
             <textarea
               required
               rows={4}
               value={campaignGoal}
               onChange={(event) => setCampaignGoal(event.target.value)}
-              placeholder="Ex: marcar reunião de diagnóstico com decisores B2B em empresas de serviços."
+              placeholder="E.g.: book diagnostic meetings with B2B decision-makers at service companies."
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Tom de voz</span>
+            <span className="text-sm font-semibold text-slate-700">Tone of voice</span>
             <input
               value={tone}
               onChange={(event) => setTone(event.target.value)}
@@ -243,7 +243,7 @@ export function OnboardingForm() {
               className="inline-flex items-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Send className="h-4 w-4" />
-              {loading ? 'Salvando...' : 'Salvar agente e continuar'}
+              {loading ? 'Saving...' : 'Save agent and continue'}
             </button>
           </div>
         </div>

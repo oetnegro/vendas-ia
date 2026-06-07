@@ -24,24 +24,24 @@ import { buildGoogleOAuthUrl, getGoogleClientId } from '@/lib/google/oauth'
 type Step = 1 | 2 | 3 | 4
 
 const SECTOR_OPTIONS = [
-  { value: 'b2b_services', label: 'Servicos B2B (consultoria, assessoria)' },
+  { value: 'b2b_services', label: 'B2B Services (consulting, advisory)' },
   { value: 'saas', label: 'SaaS / Software' },
-  { value: 'agency', label: 'Agencia (marketing, performance, criativa)' },
-  { value: 'ecommerce', label: 'E-commerce / Varejo' },
-  { value: 'health', label: 'Saude (clinicas, healthtech)' },
-  { value: 'education', label: 'Educacao (cursos, treinamentos)' },
-  { value: 'real_estate', label: 'Imobiliaria / Construcao' },
-  { value: 'finance', label: 'Financas / Fintech / Contabilidade' },
-  { value: 'hr', label: 'RH / Recrutamento / Beneficios' },
-  { value: 'intl', label: 'Internacional (EUA / Europa)' },
+  { value: 'agency', label: 'Agency (marketing, performance, creative)' },
+  { value: 'ecommerce', label: 'E-commerce / Retail' },
+  { value: 'health', label: 'Healthcare (clinics, healthtech)' },
+  { value: 'education', label: 'Education (courses, training)' },
+  { value: 'real_estate', label: 'Real Estate / Construction' },
+  { value: 'finance', label: 'Finance / Fintech / Accounting' },
+  { value: 'hr', label: 'HR / Recruiting / Benefits' },
+  { value: 'intl', label: 'International (US / Europe)' },
 ]
 
-// Step order: 1=Agente IA, 2=Gmail, 3=Leads, 4=Campanha
+// Step order: 1=AI Agent, 2=Gmail, 3=Leads, 4=Campaign
 const STEPS = [
-  { label: 'Agente IA', icon: Bot },
+  { label: 'AI Agent', icon: Bot },
   { label: 'Gmail', icon: Mail },
   { label: 'Leads', icon: FileUp },
-  { label: 'Campanha', icon: Rocket },
+  { label: 'Campaign', icon: Rocket },
 ]
 
 // ─────────────────── Progress bar ───────────────────
@@ -94,7 +94,7 @@ function StepSuccess({
   title,
   subtitle,
   onNext,
-  nextLabel = 'Continuar',
+  nextLabel = 'Continue',
 }: {
   icon: React.ReactNode
   title: string
@@ -175,7 +175,7 @@ export function GuidedOnboardingWizard() {
       setStepSuccess(true)
     } else if (googleStatus === 'error') {
       window.history.replaceState(null, '', window.location.pathname)
-      const msg = params.get('message') || 'Não foi possível conectar o Google.'
+      const msg = params.get('message') || 'Could not connect Google.'
       setGoogleOAuthError(msg)
       setStep(2) // Show Gmail step so user sees the error
     }
@@ -285,7 +285,7 @@ export function GuidedOnboardingWizard() {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-      setGoogleOAuthError('Sessão não encontrada. Faça login novamente.')
+      setGoogleOAuthError('Session not found. Please sign in again.')
       setConnecting(false)
       return
     }
@@ -302,7 +302,7 @@ export function GuidedOnboardingWizard() {
     })
 
     if (stateError) {
-      setGoogleOAuthError('Falha ao iniciar a conexão. Tente novamente.')
+      setGoogleOAuthError('Failed to start the connection. Try again.')
       setConnecting(false)
       return
     }
@@ -318,7 +318,7 @@ export function GuidedOnboardingWizard() {
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData.session?.access_token
     if (!token) {
-      setAgentError('Sessão expirada.')
+      setAgentError('Session expired.')
       setGenerating(false)
       return
     }
@@ -341,7 +341,7 @@ export function GuidedOnboardingWizard() {
     }
 
     if (!res.ok || json.error) {
-      setAgentError(json.error || 'Erro ao gerar com IA.')
+      setAgentError(json.error || 'Error generating with AI.')
       setGenerating(false)
       return
     }
@@ -365,7 +365,7 @@ export function GuidedOnboardingWizard() {
 
     if (userError || !userData.user) {
       setAgentLoading(false)
-      setAgentError(userError?.message || 'Sessão não encontrada.')
+      setAgentError(userError?.message || 'Session not found.')
       return
     }
 
@@ -379,7 +379,7 @@ export function GuidedOnboardingWizard() {
 
       if (wsError) {
         setAgentLoading(false)
-        setAgentError('Não foi possível atualizar o workspace.')
+        setAgentError('Could not update workspace.')
         return
       }
     } else {
@@ -391,7 +391,7 @@ export function GuidedOnboardingWizard() {
 
       if (wsError || !createdWorkspace) {
         setAgentLoading(false)
-        setAgentError('Não foi possível criar o workspace. Tente novamente.')
+        setAgentError('Could not create workspace. Try again.')
         return
       }
 
@@ -405,7 +405,7 @@ export function GuidedOnboardingWizard() {
 
       if (memberError) {
         setAgentLoading(false)
-        setAgentError('Não foi possível configurar o workspace. Tente novamente.')
+        setAgentError('Could not configure workspace. Try again.')
         return
       }
     }
@@ -430,7 +430,7 @@ export function GuidedOnboardingWizard() {
 
     if (saveError) {
       setAgentLoading(false)
-      setAgentError('Não foi possível salvar o agente. Tente novamente.')
+      setAgentError('Could not save the agent. Try again.')
       return
     }
 
@@ -450,9 +450,9 @@ export function GuidedOnboardingWizard() {
       return (
         <StepSuccess
           icon={<Bot className="h-9 w-9 text-green-600" />}
-          title="Agente treinado!"
-          subtitle="A IA agora sabe sobre o seu negócio, público-alvo e como responder objeções."
-          nextLabel="Conectar Gmail"
+          title="Agent trained!"
+          subtitle="The AI now knows your business, target audience, and how to handle objections."
+          nextLabel="Connect Gmail"
           onNext={() => {
             setStep(2)
             setStepSuccess(false)
@@ -467,9 +467,9 @@ export function GuidedOnboardingWizard() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F4D58D]/30">
             <Bot className="h-7 w-7 text-[#B98A1D]" />
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Treinar o agente IA</h2>
+          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Train the AI agent</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-            Explique seu negócio para a IA. Ela vai usar isso para responder leads e classificar conversas.
+            Describe your business to the AI. It will use this to reply to leads and classify conversations.
           </p>
         </div>
 
@@ -477,10 +477,10 @@ export function GuidedOnboardingWizard() {
         <div className="rounded-2xl border border-[#F4D58D]/60 bg-[#FFF9E8] p-4">
           <div className="flex items-center gap-2.5">
             <Sparkles className="h-4 w-4 text-[#B98A1D]" />
-            <p className="text-sm font-semibold text-[#2C3E50]">Gerar exemplo com IA</p>
+            <p className="text-sm font-semibold text-[#2C3E50]">Generate example with AI</p>
           </div>
           <p className="mt-1 text-xs text-slate-600">
-            Selecione o setor e clique em Gerar — a IA preenche todos os campos com um exemplo real que você edita.
+            Select the sector and click Generate — the AI fills all fields with a real example you can edit.
           </p>
           <div className="mt-3 flex gap-2">
             <select
@@ -499,7 +499,7 @@ export function GuidedOnboardingWizard() {
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#2C3E50] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:opacity-60"
             >
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              {generating ? 'Gerando...' : 'Gerar'}
+              {generating ? 'Generating...' : 'Generate'}
             </button>
           </div>
         </div>
@@ -507,28 +507,28 @@ export function GuidedOnboardingWizard() {
         <form onSubmit={(e) => { void handleSaveAgent(e) }} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Nome da empresa
+              Company name
             </label>
             <input
               required
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
-              placeholder="Ex: Acme Comercial"
+              placeholder="E.g.: Acme Commercial"
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Explique o negócio
+              Describe the business
             </label>
-            <p className="mt-0.5 text-xs text-slate-400">O que você vende, para quem, diferencial e tom de voz</p>
+            <p className="mt-0.5 text-xs text-slate-400">What you sell, who you sell to, differentiators, and tone of voice</p>
             <textarea
               required
               rows={4}
               value={businessContext}
               onChange={(e) => setBusinessContext(e.target.value)}
-              placeholder="Ex: Somos uma plataforma SaaS de gestão comercial para times de vendas B2B..."
+              placeholder="E.g.: We are a SaaS platform for commercial management for B2B sales teams..."
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </div>
@@ -536,25 +536,25 @@ export function GuidedOnboardingWizard() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Público alvo / ICP
+                Target audience / ICP
               </label>
               <textarea
                 rows={3}
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
-                placeholder="Ex: Diretores comerciais de SaaS B2B, 50–500 funcionários"
+                placeholder="E.g.: Commercial directors at B2B SaaS companies, 50–500 employees"
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Proposta de valor
+                Value proposition
               </label>
               <textarea
                 rows={3}
                 value={valueProposition}
                 onChange={(e) => setValueProposition(e.target.value)}
-                placeholder="Ex: Reduzir custo de prospecção e aumentar reuniões qualificadas"
+                placeholder="E.g.: Reduce prospecting costs and increase qualified meetings"
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
               />
             </div>
@@ -562,34 +562,34 @@ export function GuidedOnboardingWizard() {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Objeções comuns
+              Common objections
             </label>
             <textarea
               rows={3}
               value={commonObjections}
               onChange={(e) => setCommonObjections(e.target.value)}
-              placeholder="Ex: Já tenho fornecedor. | Não tenho orçamento. | Preciso falar com meu sócio."
+              placeholder="E.g.: Already have a vendor. | No budget. | Need to talk to my partner."
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Objetivo da campanha
+              Campaign goal
             </label>
             <textarea
               required
               rows={2}
               value={campaignGoal}
               onChange={(e) => setCampaignGoal(e.target.value)}
-              placeholder="Ex: Marcar reunião de diagnóstico com decisores B2B"
+              placeholder="E.g.: Book diagnostic meetings with B2B decision-makers"
               className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A1D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Tom de voz
+              Tone of voice
             </label>
             <input
               value={tone}
@@ -610,7 +610,7 @@ export function GuidedOnboardingWizard() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2C3E50] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {agentLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            {agentLoading ? 'Salvando...' : 'Salvar e continuar'}
+            {agentLoading ? 'Saving...' : 'Save and continue'}
           </button>
         </form>
       </div>
@@ -623,13 +623,13 @@ export function GuidedOnboardingWizard() {
       return (
         <StepSuccess
           icon={<Mail className="h-9 w-9 text-green-600" />}
-          title="Gmail conectado!"
+          title="Gmail connected!"
           subtitle={
             googleEmail
-              ? `Emails serão enviados por ${googleEmail}`
-              : 'Sua conta Google está pronta para disparos.'
+              ? `Emails will be sent from ${googleEmail}`
+              : 'Your Google account is ready for sending.'
           }
-          nextLabel="Importar leads"
+          nextLabel="Import leads"
           onNext={() => {
             if (workspace?.id) void saveOnboardingStep(workspace.id, 3)
             setStep(3)
@@ -645,9 +645,9 @@ export function GuidedOnboardingWizard() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
             <Mail className="h-7 w-7 text-[#2C3E50]" />
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Conectar o Gmail</h2>
+          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Connect Gmail</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-            Sua conta Google é usada para enviar os e-mails e receber respostas. Os tokens ficam associados ao workspace e nunca aparecem no browser.
+            Your Google account is used to send emails and receive replies. Tokens are scoped to the workspace and never exposed in the browser.
           </p>
         </div>
 
@@ -660,14 +660,14 @@ export function GuidedOnboardingWizard() {
             {!googleClientId && (
               <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                GOOGLE_CLIENT_ID não configurado. Configure a variável de ambiente.
+                GOOGLE_CLIENT_ID is not configured. Set the environment variable.
               </div>
             )}
 
             {!workspace && (
               <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                Workspace não encontrado. Volte ao passo anterior e salve o agente primeiro.
+                Workspace not found. Go back to the previous step and save the agent first.
               </div>
             )}
 
@@ -675,7 +675,7 @@ export function GuidedOnboardingWizard() {
               <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <div>
-                  <p className="font-semibold">Falha na conexão Google</p>
+                  <p className="font-semibold">Google connection failed</p>
                   <p className="mt-0.5">{googleOAuthError}</p>
                 </div>
               </div>
@@ -685,7 +685,7 @@ export function GuidedOnboardingWizard() {
               <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
                 <div>
-                  <p className="text-sm font-semibold text-green-800">Conectado como {googleEmail}</p>
+                  <p className="text-sm font-semibold text-green-800">Connected as {googleEmail}</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -694,7 +694,7 @@ export function GuidedOnboardingWizard() {
                     }}
                     className="mt-1 text-xs font-semibold text-green-700 underline"
                   >
-                    Continuar →
+                    Continue →
                   </button>
                 </div>
               </div>
@@ -715,7 +715,7 @@ export function GuidedOnboardingWizard() {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
                 )}
-                {connecting ? 'Redirecionando...' : 'Continuar com Google'}
+                {connecting ? 'Redirecting...' : 'Continue with Google'}
               </button>
             )}
 
@@ -729,7 +729,7 @@ export function GuidedOnboardingWizard() {
                 }}
                 className="w-full text-center text-xs text-slate-400 transition hover:text-slate-600"
               >
-                Pular por agora → (conecte antes do primeiro disparo)
+                Skip for now → (connect before your first send)
               </button>
             )}
           </div>
@@ -743,9 +743,9 @@ export function GuidedOnboardingWizard() {
       return (
         <StepSuccess
           icon={<FileUp className="h-9 w-9 text-green-600" />}
-          title={`${leadCount} leads prontos!`}
-          subtitle="Sua lista está carregada. Agora basta criar a campanha e configurar a cadência."
-          nextLabel="Criar campanha"
+          title={`${leadCount} leads ready!`}
+          subtitle="Your list is loaded. Now just create the campaign and configure the cadence."
+          nextLabel="Create campaign"
           onNext={() => {
             if (workspace?.id) void saveOnboardingStep(workspace.id, 4)
             setStep(4)
@@ -761,9 +761,9 @@ export function GuidedOnboardingWizard() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
             <FileUp className="h-7 w-7 text-[#2C3E50]" />
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Importar leads</h2>
+          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Import leads</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-            Faça upload de um CSV com nome, e-mail, empresa e cargo dos seus prospects.
+            Upload a CSV with name, email, company, and title for your prospects.
           </p>
         </div>
 
@@ -777,8 +777,8 @@ export function GuidedOnboardingWizard() {
               <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
                 <div>
-                  <p className="text-sm font-semibold text-green-800">{leadCount} leads importados</p>
-                  <p className="text-xs text-green-600">Você pode importar mais a qualquer momento</p>
+                  <p className="text-sm font-semibold text-green-800">{leadCount} leads imported</p>
+                  <p className="text-xs text-green-600">You can import more at any time</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -787,7 +787,7 @@ export function GuidedOnboardingWizard() {
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[#2C3E50] hover:bg-slate-50"
                 >
                   <FileUp className="h-4 w-4" />
-                  Importar mais
+                  Import more
                 </Link>
                 <button
                   type="button"
@@ -798,7 +798,7 @@ export function GuidedOnboardingWizard() {
                   }}
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2C3E50] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E]"
                 >
-                  Continuar
+                  Continue
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -806,7 +806,7 @@ export function GuidedOnboardingWizard() {
           ) : (
             <div className="space-y-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-semibold text-slate-600">Colunas do CSV</p>
+                <p className="text-xs font-semibold text-slate-600">CSV columns</p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {['email', 'first_name', 'last_name', 'company', 'title'].map((col) => (
                     <code key={col} className="rounded bg-slate-200 px-1.5 py-0.5 text-[11px] text-slate-700">{col}</code>
@@ -818,7 +818,7 @@ export function GuidedOnboardingWizard() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2C3E50] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#34495E]"
               >
                 <FileUp className="h-4 w-4" />
-                Fazer upload do CSV
+                Upload CSV
               </Link>
               <button
                 type="button"
@@ -829,7 +829,7 @@ export function GuidedOnboardingWizard() {
                 }}
                 className="w-full text-center text-xs text-slate-400 transition hover:text-slate-600"
               >
-                Pular por agora → (importe antes de disparar)
+                Skip for now → (import before sending)
               </button>
             </div>
           )}
@@ -845,9 +845,9 @@ export function GuidedOnboardingWizard() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F4D58D]/30">
             <Rocket className="h-7 w-7 text-[#B98A1D]" />
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Criar a campanha</h2>
+          <h2 className="mt-4 text-2xl font-bold text-[#2C3E50]">Create campaign</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-            Tudo pronto! Defina objetivo, volume diário e horários de envio da sua primeira campanha.
+            All set! Define the goal, daily volume, and send schedule for your first campaign.
           </p>
         </div>
 
@@ -855,18 +855,18 @@ export function GuidedOnboardingWizard() {
         <div className="mx-auto max-w-sm space-y-2">
           <MiniCheck
             done={!!(businessContext && campaignGoal)}
-            label="Agente IA treinado"
-            note="Contexto e objetivo definidos"
+            label="AI Agent trained"
+            note="Context and goal defined"
           />
           <MiniCheck
             done={googleConnected}
-            label="Gmail conectado"
-            note={googleConnected ? (googleEmail ?? '') : 'Conecte em Configurações > Google'}
+            label="Gmail connected"
+            note={googleConnected ? (googleEmail ?? '') : 'Connect in Settings > Google'}
           />
           <MiniCheck
             done={leadCount > 0}
-            label={leadCount > 0 ? `${leadCount} leads importados` : 'Sem leads ainda'}
-            note={leadCount > 0 ? 'Lista pronta' : 'Importe em /leads/import'}
+            label={leadCount > 0 ? `${leadCount} leads imported` : 'No leads yet'}
+            note={leadCount > 0 ? 'List ready' : 'Import at /leads/import'}
           />
         </div>
 
@@ -876,13 +876,13 @@ export function GuidedOnboardingWizard() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#B98A1D] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#A07818]"
           >
             <Rocket className="h-4 w-4" />
-            Criar campanha agora
+            Create campaign now
           </Link>
           <Link
             href="/dashboard"
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-[#2C3E50] transition hover:bg-slate-50"
           >
-            Ir para o dashboard →
+            Go to dashboard →
           </Link>
         </div>
       </div>
@@ -906,7 +906,7 @@ export function GuidedOnboardingWizard() {
         </span>
         <ProgressBar current={step} />
         <Link href="/dashboard" className="text-xs text-slate-400 transition hover:text-slate-600">
-          Pular setup →
+          Skip setup →
         </Link>
       </header>
 
@@ -922,13 +922,13 @@ export function GuidedOnboardingWizard() {
 
       {/* Footer */}
       <footer className="border-t border-slate-100 px-6 py-3 text-center text-xs text-slate-400">
-        Passo {step} de 4 ·{' '}
+        Step {step} of 4 ·{' '}
         <button
           type="button"
           onClick={() => setStep(Math.max(1, step - 1) as Step)}
           className="underline hover:text-slate-600"
         >
-          Voltar
+          Back
         </button>
       </footer>
     </div>

@@ -1,7 +1,7 @@
 import { CampaignReview } from '@/components/campaigns/campaign-review'
 
 export const metadata = {
-  title: 'Revisar campanha | Vendas+IA App',
+  title: 'Campaign Review | Vendas+IA',
 }
 
 export default async function CampaignReviewPage({

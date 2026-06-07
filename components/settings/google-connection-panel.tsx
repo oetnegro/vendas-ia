@@ -23,17 +23,17 @@ type GoogleConnection = Pick<
 const scopes = [
   {
     title: 'Gmail',
-    helper: 'Enviar e ler respostas necessárias para o inbox e classificação da IA.',
+    helper: 'Send and read replies needed for inbox and AI classification.',
     icon: Mail,
   },
   {
     title: 'Google Calendar',
-    helper: 'Criar eventos quando a conversa chegar na etapa de reunião.',
+    helper: 'Create events when a conversation reaches the meeting stage.',
     icon: Calendar,
   },
   {
-    title: 'Consentimento explícito',
-    helper: 'Tokens ficam associados ao workspace e não são expostos no browser.',
+    title: 'Explicit consent',
+    helper: 'Tokens are scoped to the workspace and never exposed in the browser.',
     icon: ShieldCheck,
   },
 ]
@@ -58,13 +58,13 @@ export function GoogleConnectionPanel() {
     const params = new URLSearchParams(window.location.search)
     if (params.get('google') !== 'error') return null
 
-    return params.get('message') || 'Nao foi possivel concluir a conexao Google.'
+    return params.get('message') || 'Could not complete the Google connection.'
   })
   const [notice, setNotice] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null
 
     const params = new URLSearchParams(window.location.search)
-    return params.get('google') === 'connected' ? 'Conta Google conectada com sucesso.' : null
+    return params.get('google') === 'connected' ? 'Google account connected successfully.' : null
   })
 
   const googleClientId = getGoogleClientId()
@@ -111,12 +111,12 @@ export function GoogleConnectionPanel() {
 
   const handleConnect = async () => {
     if (!googleClientId) {
-      setError('Configure NEXT_PUBLIC_GOOGLE_CLIENT_ID para ativar o OAuth do Google.')
+      setError('Set NEXT_PUBLIC_GOOGLE_CLIENT_ID to enable Google OAuth.')
       return
     }
 
     if (!workspace) {
-      setError('Crie ou selecione um workspace antes de conectar o Google.')
+      setError('Create or select a workspace before connecting Google.')
       return
     }
 
@@ -128,7 +128,7 @@ export function GoogleConnectionPanel() {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-      setError(userError?.message || 'Sessao nao encontrada.')
+      setError(userError?.message || 'Session not found.')
       setConnecting(false)
       return
     }
@@ -155,7 +155,7 @@ export function GoogleConnectionPanel() {
 
   const handleDisconnect = async () => {
     if (!workspace) {
-      setError('Crie ou selecione um workspace antes de desconectar o Google.')
+      setError('Create or select a workspace before disconnecting Google.')
       return
     }
 
@@ -175,18 +175,18 @@ export function GoogleConnectionPanel() {
     }
 
     setConnection(null)
-    setNotice('Conta Google desconectada deste workspace.')
+    setNotice('Google account disconnected from this workspace.')
     setDisconnecting(false)
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-sm font-medium text-yellow-600">Configurações</p>
-        <h1 className="mt-2 text-3xl font-semibold text-slate-950">Conexão Google</h1>
+        <p className="text-sm font-medium text-yellow-600">Settings</p>
+        <h1 className="mt-2 text-3xl font-semibold text-slate-950">Google Connection</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Conecte Gmail e Calendar do workspace para permitir envio pelo e-mail do usuario e
-          agendamento quando a IA chegar na etapa de reuniao.
+          Connect the workspace Gmail and Calendar to enable sending from the user&apos;s email and
+          scheduling meetings when the AI reaches the meeting stage.
         </p>
       </div>
 
@@ -212,21 +212,21 @@ export function GoogleConnectionPanel() {
               {loading || workspaceLoading ? (
                 <p className="mt-2 inline-flex items-center gap-2 text-sm text-slate-600">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Verificando conexão...
+                  Checking connection...
                 </p>
               ) : connection?.status === 'connected' ? (
                 <div className="mt-2 space-y-1">
                   <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700">
                     <CheckCircle2 className="h-4 w-4" />
-                    Conectado como {connection.google_email || 'conta Google'}
+                    Connected as {connection.google_email || 'Google account'}
                   </p>
                   <p className="text-xs text-slate-500">
-                    Ultima atualização: {new Date(connection.updated_at).toLocaleString('pt-BR')}
+                    Last updated: {new Date(connection.updated_at).toLocaleString('en-US')}
                   </p>
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-slate-600">
-                  Nenhuma conta Google conectada neste workspace.
+                  No Google account connected to this workspace.
                 </p>
               )}
             </div>
@@ -244,7 +244,7 @@ export function GoogleConnectionPanel() {
                   ) : (
                     <LogOut className="h-4 w-4" />
                   )}
-                  Desconectar
+                  Disconnect
                 </button>
               ) : null}
 
@@ -259,7 +259,7 @@ export function GoogleConnectionPanel() {
                 ) : (
                   <Mail className="h-4 w-4" />
                 )}
-                {connection?.status === 'connected' ? 'Conectar outra conta' : 'Conectar Google'}
+                {connection?.status === 'connected' ? 'Connect another account' : 'Connect Google'}
               </button>
             </div>
           </div>
@@ -267,7 +267,7 @@ export function GoogleConnectionPanel() {
           {!googleClientId ? (
             <p className="mt-4 inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
               <TriangleAlert className="h-4 w-4" />
-              Falta configurar NEXT_PUBLIC_GOOGLE_CLIENT_ID.
+              NEXT_PUBLIC_GOOGLE_CLIENT_ID is not configured.
             </p>
           ) : null}
 
@@ -288,7 +288,7 @@ export function GoogleConnectionPanel() {
         </div>
 
         <div className="mt-6 rounded-lg border border-slate-200 p-5">
-          <h2 className="text-sm font-semibold text-slate-950">Escopos solicitados</h2>
+          <h2 className="text-sm font-semibold text-slate-950">Requested scopes</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {connection?.scopes?.length ? (
               connection.scopes.map((scope) => (
@@ -301,13 +301,13 @@ export function GoogleConnectionPanel() {
               ))
             ) : (
               <p className="text-sm text-slate-500">
-                Os escopos aparecem aqui depois da primeira conexão aprovada.
+                Scopes appear here after the first approved connection.
               </p>
             )}
           </div>
           <p className="mt-4 text-xs leading-5 text-slate-500">
-            No MVP, o token fica associado ao workspace e sera usado apenas por rotas/server jobs.
-            Antes de produção, a camada de criptografia dos tokens deve ser ativada.
+            In this phase, the token is scoped to the workspace and used only by server routes and
+            jobs. Before production, token encryption must be enabled.
           </p>
         </div>
       </section>

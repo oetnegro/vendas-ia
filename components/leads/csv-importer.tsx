@@ -81,10 +81,10 @@ export function CsvImporter() {
 
     if (copied) {
       setCopiedTemplate(true)
-      setSuccess('Modelo copiado. Cole em uma planilha mantendo a primeira linha como cabecalho.')
+      setSuccess('Template copied. Paste it into a spreadsheet keeping the first row as headers.')
       window.setTimeout(() => setCopiedTemplate(false), 1800)
     } else {
-      setError('Nao consegui copiar automaticamente. Selecione o modelo e copie manualmente.')
+      setError('Could not copy automatically. Select the template and copy it manually.')
     }
   }
 
@@ -96,7 +96,7 @@ export function CsvImporter() {
     if (!file) return
 
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      setError('Envie um arquivo CSV.')
+      setError('Please upload a CSV file.')
       return
     }
 
@@ -107,9 +107,9 @@ export function CsvImporter() {
       setRows([])
       setFileName(null)
       setError(
-        `Nao encontrei a coluna obrigatoria "email" no cabecalho. Cabecalhos lidos: ${
-          headers.join(', ') || 'nenhum'
-        }. Separador detectado: ${delimiter === '\t' ? 'tab' : delimiter}.`,
+        `Required column "email" not found in headers. Headers detected: ${
+          headers.join(', ') || 'none'
+        }. Delimiter: ${delimiter === '\t' ? 'tab' : delimiter}.`,
       )
       return
     }
@@ -117,7 +117,7 @@ export function CsvImporter() {
     const parsedRows = parseCsv(text)
 
     if (!parsedRows.length) {
-      setError('Nao encontrei linhas validas no CSV.')
+      setError('No valid rows found in the CSV.')
       return
     }
 
@@ -127,7 +127,7 @@ export function CsvImporter() {
 
   const handleImport = async () => {
     if (!workspace) {
-      setError('Crie um workspace antes de importar leads.')
+      setError('Create a workspace before importing leads.')
       return
     }
 
@@ -163,22 +163,22 @@ export function CsvImporter() {
       return
     }
 
-    const duplicateMessage = duplicateRows ? ` ${duplicateRows} duplicado(s) ignorado(s) no arquivo.` : ''
-    setSuccess(`${leads.length} lead(s) importados ou atualizados.${duplicateMessage}`)
+    const duplicateMessage = duplicateRows ? ` ${duplicateRows} duplicate(s) skipped.` : ''
+    setSuccess(`${leads.length} lead(s) imported or updated.${duplicateMessage}`)
   }
 
   if (!workspaceLoading && !workspace) {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <h1 className="text-2xl font-semibold text-[#2C3E50]">Crie o workspace primeiro</h1>
+        <h1 className="text-2xl font-semibold text-[#2C3E50]">Create a workspace first</h1>
         <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">
-          Antes de importar leads, precisamos salvar o contexto da empresa e do agente.
+          Before importing leads, we need to save your company and agent context.
         </p>
         <Link
           href="/setup"
           className="mt-5 inline-flex rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white"
         >
-          Ir para configuração
+          Go to setup
         </Link>
       </section>
     )
@@ -189,10 +189,9 @@ export function CsvImporter() {
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-semibold text-[#B98A1D]">Leads</p>
-          <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Importar CSV</h1>
+          <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Import CSV</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-            Suba a lista no padrao do produto. Campos desconhecidos entram como informacoes
-            extras do lead para a IA usar depois.
+            Upload your list in the standard format. Unknown columns are stored as extra lead fields for the AI to use.
           </p>
         </div>
         <a
@@ -201,17 +200,16 @@ export function CsvImporter() {
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2C3E50]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#2C3E50] shadow-sm hover:bg-slate-50"
         >
           <Download className="h-4 w-4" />
-          Baixar modelo CSV
+          Download CSV template
         </a>
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
           <div>
-            <h2 className="text-sm font-bold text-[#2C3E50]">Modelo para preencher</h2>
+            <h2 className="text-sm font-bold text-[#2C3E50]">Template to fill out</h2>
             <p className="mt-1 text-sm text-slate-700">
-              O campo `email` e obrigatorio. O importador tambem aceita planilhas com separador
-              ponto e virgula e cabecalhos como `e-mail`, `nome`, `empresa` e `cargo`.
+              The `email` column is required. The importer also accepts semicolon-separated files and column names like `e-mail`, `nome`, `empresa`, and `cargo`.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -221,7 +219,7 @@ export function CsvImporter() {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2C3E50]/20 bg-white px-3 py-2 text-sm font-semibold text-[#2C3E50] hover:bg-slate-50"
             >
               <Download className="h-4 w-4" />
-              Download direto
+              Direct download
             </a>
             <button
               type="button"
@@ -229,7 +227,7 @@ export function CsvImporter() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-3 py-2 text-sm font-semibold text-white hover:bg-[#34495E]"
             >
               <Clipboard className="h-4 w-4" />
-              {copiedTemplate ? 'Copiado' : 'Copiar'}
+              {copiedTemplate ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
@@ -243,9 +241,9 @@ export function CsvImporter() {
         <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center transition hover:border-[#F4D58D] hover:bg-[#F4D58D]/10">
           <FileUp className="h-10 w-10 text-[#2C3E50]" />
           <span className="mt-4 text-sm font-semibold text-[#2C3E50]">
-            Clique para escolher um CSV
+            Click to choose a CSV
           </span>
-          <span className="mt-1 text-xs font-medium text-slate-700">email e obrigatorio</span>
+          <span className="mt-1 text-xs font-medium text-slate-700">email is required</span>
           <input type="file" accept=".csv,text/csv" onChange={handleFileChange} className="sr-only" />
         </label>
 
@@ -256,7 +254,7 @@ export function CsvImporter() {
               <div>
                 <p className="text-sm font-semibold text-slate-900">{fileName}</p>
                 <p className="text-xs text-slate-500">
-                  {importableRows.length} validos, {invalidRows} sem email, {duplicateRows} duplicados
+                  {importableRows.length} valid, {invalidRows} without email, {duplicateRows} duplicates
                 </p>
               </div>
             </div>
@@ -267,7 +265,7 @@ export function CsvImporter() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Upload className="h-4 w-4" />
-              {importing ? 'Importando...' : 'Importar leads'}
+              {importing ? 'Importing...' : 'Import leads'}
             </button>
           </div>
         ) : null}
@@ -276,7 +274,7 @@ export function CsvImporter() {
           <p className="mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             <AlertCircle className="h-4 w-4" />
             {error === 'ON CONFLICT DO UPDATE command cannot affect row a second time'
-              ? 'A planilha tem emails duplicados. Remova as duplicatas ou selecione o arquivo de novo para o importador ignorar automaticamente.'
+              ? 'The spreadsheet has duplicate emails. Remove duplicates or re-select the file for the importer to skip them automatically.'
               : error}
           </p>
         ) : null}
@@ -299,9 +297,9 @@ export function CsvImporter() {
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-5 py-3">Email</th>
-                  <th className="px-5 py-3">Nome</th>
-                  <th className="px-5 py-3">Empresa</th>
-                  <th className="px-5 py-3">Cargo</th>
+                  <th className="px-5 py-3">Name</th>
+                  <th className="px-5 py-3">Company</th>
+                  <th className="px-5 py-3">Title</th>
                   <th className="px-5 py-3">Status</th>
                 </tr>
               </thead>
@@ -322,7 +320,7 @@ export function CsvImporter() {
                             : 'bg-red-100 text-red-700'
                         }`}
                       >
-                        {row.email?.includes('@') ? 'Valido' : 'Sem email'}
+                        {row.email?.includes('@') ? 'Valid' : 'No email'}
                       </span>
                     </td>
                   </tr>

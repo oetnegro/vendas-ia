@@ -25,15 +25,15 @@ import { useEffect, useRef, useState } from 'react'
 
 const NAV_MAIN = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3, highlight: false },
-  { href: '/inbox', label: 'Conversas', icon: MessageSquareText, highlight: false },
+  { href: '/inbox', label: 'Inbox', icon: MessageSquareText, highlight: false },
   { href: '/leads', label: 'Leads', icon: Users, highlight: false },
-  { href: '/leads/enrich', label: 'Buscar Leads', icon: Sparkles, highlight: true },
-  { href: '/campaigns', label: 'Campanhas', icon: FileText, highlight: false },
+  { href: '/leads/enrich', label: 'Find Leads', icon: Sparkles, highlight: true },
+  { href: '/campaigns', label: 'Campaigns', icon: FileText, highlight: false },
 ]
 
 const NAV_CONFIG = [
-  { href: '/configurar', label: 'Configurar', icon: Settings },
-  { href: '/settings/integrations', label: 'Integração MCP', icon: Plug },
+  { href: '/configurar', label: 'Configure', icon: Settings },
+  { href: '/settings/integrations', label: 'MCP Integration', icon: Plug },
 ]
 
 // ─────────────────────── Sidebar content ───────────────────────
@@ -155,7 +155,7 @@ function SidebarContent({
         <div className={`pt-4 mt-2 border-t border-white/10 ${collapsed ? '' : ''}`}>
           {!collapsed && (
             <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              Setup
+              Configuration
             </p>
           )}
           {NAV_CONFIG.map((item) => {
@@ -204,6 +204,7 @@ function SidebarContent({
                 <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
                   Workspaces
                 </p>
+
                 {workspaces.map((item) => (
                   <button
                     key={item.id}
@@ -239,13 +240,13 @@ function SidebarContent({
         <button
           type="button"
           onClick={onSignOut}
-          title={collapsed ? 'Sair' : undefined}
+          title={collapsed ? 'Sign out' : undefined}
           className={`flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-slate-300 transition hover:bg-red-500/20 hover:text-red-200 ${
             collapsed ? 'justify-center px-2' : 'gap-3 px-3'
           }`}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && 'Sair'}
+          {!collapsed && 'Sign out'}
         </button>
 
       </div>
@@ -298,7 +299,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <button
           type="button"
           onClick={() => setCollapsed((v) => !v)}
-          title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          title={collapsed ? 'Expand menu' : 'Collapse menu'}
           className="absolute -right-3 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition hover:bg-slate-50 hover:text-[#2C3E50]"
         >
           {collapsed ? (
@@ -330,7 +331,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => setSidebarOpen(true)}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
-            aria-label="Abrir menu"
+            aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </button>

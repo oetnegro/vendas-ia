@@ -55,7 +55,7 @@ function leadName(lead: LeadRow) {
     [lead.first_name, lead.last_name].filter(Boolean).join(' ') ||
     lead.company ||
     lead.email ||
-    'Sem nome'
+    'No name'
   )
 }
 
@@ -83,9 +83,9 @@ function leadPhone(lead: LeadRow): string | null {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value))
@@ -93,15 +93,15 @@ function formatDate(value: string | null) {
 
 function statusLabel(status: LeadStatus) {
   const labels: Record<LeadStatus, string> = {
-    new: 'Novo',
-    queued: 'Na fila',
-    contacted: 'Contactado',
-    replied: 'Respondeu',
-    interested: 'Interessado',
-    meeting_booked: 'Agendado',
-    negative: 'Negativa',
-    opted_out: 'Descadastro',
-    paused: 'Pausado',
+    new: 'New',
+    queued: 'Queued',
+    contacted: 'Contacted',
+    replied: 'Replied',
+    interested: 'Interested',
+    meeting_booked: 'Meeting Booked',
+    negative: 'Negative',
+    opted_out: 'Opted Out',
+    paused: 'Paused',
   }
   return labels[status] || status
 }
@@ -115,18 +115,18 @@ function statusClasses(status: LeadStatus) {
 }
 
 function stepLabel(n: number) {
-  if (n === 1) return '1ª Mensagem'
+  if (n === 1) return '1st Email'
   if (n === 2) return 'Follow Up'
   return `Follow Up ${n - 1}`
 }
 
 const FILTER_LABELS: Record<string, string> = {
-  acionados: 'Leads Acionados',
-  responderam: 'Responderam',
-  'status:qualified': 'Qualificados',
-  'status:interested': 'Interessados',
-  'status:meeting_booked': 'Agendamentos',
-  'status:negative': 'Negativos',
+  acionados: 'Contacted Leads',
+  responderam: 'Replied',
+  'status:qualified': 'Qualified',
+  'status:interested': 'Interested',
+  'status:meeting_booked': 'Meetings Booked',
+  'status:negative': 'Negative',
 }
 
 function filterTitle(param: string | null) {
@@ -271,13 +271,13 @@ export function LeadsList() {
   if (!workspaceLoading && !workspace) {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <h1 className="text-2xl font-semibold text-[#2C3E50]">Sem workspace ainda</h1>
-        <p className="mt-2 text-sm text-slate-600">Crie o agente antes de carregar leads.</p>
+        <h1 className="text-2xl font-semibold text-[#2C3E50]">No workspace yet</h1>
+        <p className="mt-2 text-sm text-slate-600">Set up the agent before loading leads.</p>
         <Link
           href="/setup"
           className="mt-5 inline-flex rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white"
         >
-          Começar configuração
+          Start setup
         </Link>
       </section>
     )
@@ -291,7 +291,7 @@ export function LeadsList() {
           <p className="text-sm font-semibold text-[#B98A1D]">CRM</p>
           <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Leads</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Lista de contatos importados para prospeccao por email.
+            Imported contacts for email prospecting.
           </p>
         </div>
         <div className="flex shrink-0 gap-3">
@@ -301,7 +301,7 @@ export function LeadsList() {
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
             >
               <X className="h-4 w-4" />
-              Ver todos
+              View all
             </Link>
           )}
           <Link
@@ -309,7 +309,7 @@ export function LeadsList() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#34495E]"
           >
             <FileUp className="h-4 w-4" />
-            Importar CSV
+            Import CSV
           </Link>
         </div>
       </div>
@@ -319,7 +319,7 @@ export function LeadsList() {
         <div className="flex items-center gap-3 rounded-lg border border-[#F4D58D]/60 bg-[#F4D58D]/15 px-4 py-3">
           <span className="h-2 w-2 rounded-full bg-[#B98A1D]" />
           <p className="text-sm font-semibold text-[#2C3E50]">
-            Filtro ativo:{' '}
+            Active filter:{' '}
             <span className="font-bold">{title}</span>
           </p>
           <span className="ml-auto rounded-full bg-[#2C3E50] px-2.5 py-0.5 text-xs font-bold text-white">
@@ -329,7 +329,7 @@ export function LeadsList() {
             href="/leads"
             className="ml-1 text-xs font-semibold text-slate-500 underline hover:text-slate-700"
           >
-            Limpar
+            Clear
           </Link>
         </div>
       )}
@@ -340,17 +340,17 @@ export function LeadsList() {
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <UserRound className="h-4 w-4 text-[#2C3E50]" />
             {loading
-              ? 'Carregando...'
+              ? 'Loading...'
               : filterParam
-                ? `${filteredLeads.length} de ${leads.length} lead(s)`
-                : `${leads.length} lead(s) no workspace`}
+                ? `${filteredLeads.length} of ${leads.length} lead(s)`
+                : `${leads.length} lead(s) in workspace`}
           </div>
           <label className="relative block md:w-80">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por email, nome ou empresa"
+              placeholder="Search by email, name or company"
               className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
@@ -362,16 +362,16 @@ export function LeadsList() {
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-5 py-3">Lead</th>
-                  <th className="px-5 py-3">Contato</th>
-                  <th className="px-5 py-3">Empresa</th>
+                  <th className="px-5 py-3">Contact</th>
+                  <th className="px-5 py-3">Company</th>
                   <th className="px-5 py-3">Status</th>
                   {showEngagement && (
                     <>
-                      <th className="px-5 py-3 text-center">Engajamento</th>
-                      <th className="px-5 py-3 text-right">Ultimo Contato</th>
+                      <th className="px-5 py-3 text-center">Engagement</th>
+                      <th className="px-5 py-3 text-right">Last Contact</th>
                     </>
                   )}
-                  {!showEngagement && <th className="px-5 py-3">Criado em</th>}
+                  {!showEngagement && <th className="px-5 py-3">Created at</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -453,7 +453,7 @@ export function LeadsList() {
                         </>
                       ) : (
                         <td className="px-5 py-4 text-slate-500">
-                          {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                          {new Date(lead.created_at).toLocaleDateString('en-US')}
                         </td>
                       )}
                     </tr>
@@ -465,23 +465,23 @@ export function LeadsList() {
         ) : (
           <div className="p-10 text-center">
             {loading ? (
-              <p className="text-sm text-slate-500">Carregando leads...</p>
+              <p className="text-sm text-slate-500">Loading leads...</p>
             ) : filterParam ? (
               <>
-                <p className="text-sm font-semibold text-slate-900">Nenhum lead neste filtro</p>
+                <p className="text-sm font-semibold text-slate-900">No leads match this filter</p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Tente outro filtro ou{' '}
+                  Try another filter or{' '}
                   <Link href="/leads" className="font-semibold text-blue-600 hover:underline">
-                    veja todos os leads
+                    view all leads
                   </Link>
                   .
                 </p>
               </>
             ) : (
               <>
-                <p className="text-sm font-semibold text-slate-900">Nenhum lead encontrado</p>
+                <p className="text-sm font-semibold text-slate-900">No leads found</p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Importe um CSV para montar a primeira campanha.
+                  Import a CSV to build your first campaign.
                 </p>
               </>
             )}

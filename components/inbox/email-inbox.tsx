@@ -72,22 +72,22 @@ type InboxConversation = {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return 'Sem data'
+  if (!value) return 'No date'
 
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value))
 }
 
 function formatMessageTime(value: string | null) {
-  if (!value) return 'Sem data'
+  if (!value) return 'No date'
 
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value))
@@ -161,29 +161,29 @@ function cleanReplyForDisplay(value: string | null) {
 }
 
 function messagePreview(message?: InboxMessage) {
-  if (!message) return 'Sem mensagens ainda'
+  if (!message) return 'No messages yet'
 
   const body =
     message.direction === 'inbound'
       ? cleanReplyForDisplay(message.body_text) || message.body_text
       : message.body_text
 
-  return body || message.subject || 'Mensagem sem corpo'
+  return body || message.subject || 'Empty message'
 }
 
 function statusLabel(status?: string | null) {
   const labels: Record<string, string> = {
-    new: 'Cliente Novo',
-    contacted: 'Contactado',
-    replied: 'Responderam',
-    interested: 'Interessado',
-    meeting_booked: 'Agendamento',
-    negative: 'Negativa',
-    opted_out: 'Descadastro',
-    paused: 'Pausado',
+    new: 'New',
+    contacted: 'Contacted',
+    replied: 'Replied',
+    interested: 'Interested',
+    meeting_booked: 'Meeting Booked',
+    negative: 'Negative',
+    opted_out: 'Opted Out',
+    paused: 'Paused',
   }
 
-  return status ? labels[status] || status : 'Cliente Novo'
+  return status ? labels[status] || status : 'New'
 }
 
 function statusClasses(status?: string | null) {
@@ -554,7 +554,7 @@ export function EmailInbox() {
         threadIds.includes(thread.id) ? { ...thread, ai_enabled: nextValue } : thread,
       ),
     )
-    setNotice(nextValue ? 'IA ativada para esta conversa.' : 'IA pausada para esta conversa.')
+    setNotice(nextValue ? 'AI enabled for this conversation.' : 'AI paused for this conversation.')
     setSaving(false)
   }
 
@@ -570,7 +570,7 @@ export function EmailInbox() {
     const token = sessionData.session?.access_token
 
     if (!token) {
-      setError('Sessao expirada. Faça login novamente.')
+      setError('Session expired. Please sign in again.')
       setSyncing(false)
       return
     }
@@ -603,7 +603,7 @@ export function EmailInbox() {
     }
 
     if (!response.ok || !json.ok) {
-      setError(json.error || 'Nao foi possivel sincronizar o Gmail.')
+      setError(json.error || 'Could not sync Gmail.')
       setSyncing(false)
       return
     }
@@ -613,21 +613,21 @@ export function EmailInbox() {
 
     if (partialErrors.length > 0) {
       setError(
-        `Sync rodou, mas ${partialErrors.length} thread(s) falharam. Primeiro erro: ${partialErrors[0].message}`,
+        `Sync ran, but ${partialErrors.length} thread(s) failed. First error: ${partialErrors[0].message}`,
       )
     }
 
-    const baseNotice = `Gmail sincronizado: ${json.syncedThreads || 0} thread(s), ${
+    const baseNotice = `Gmail synced: ${json.syncedThreads || 0} thread(s), ${
       json.syncedMessages || 0
-    } mensagem(ns), ${json.inboundMessages || 0} resposta(s) recebida(s).`
+    } message(s), ${json.inboundMessages || 0} inbound reply(ies).`
     const aiNotice = json.aiReplies
-      ? ` IA: ${json.aiReplies.sent} enviada(s)${json.aiReplies.skipped > 0 ? ` · ${json.aiReplies.skipped} sem pendencia` : ''}.`
+      ? ` AI: ${json.aiReplies.sent} sent${json.aiReplies.skipped > 0 ? ` · ${json.aiReplies.skipped} no pending` : ''}.`
       : ''
 
     setNotice(
       json.inboundMessages && json.inboundMessages > 0
         ? `${baseNotice}${aiNotice}`
-        : `${baseNotice}${aiNotice} Se voce respondeu ha poucos segundos, aguarde um pouco e rode o Sync de novo.`,
+        : `${baseNotice}${aiNotice} If you replied a few seconds ago, wait a moment and sync again.`,
     )
     setSyncing(false)
   }
@@ -679,7 +679,7 @@ export function EmailInbox() {
       ),
     )
     setEditingNotes(false)
-    setNotice('Anotacao salva no lead.')
+    setNotice('Note saved to lead.')
     setSavingNotes(false)
   }
 
@@ -688,7 +688,7 @@ export function EmailInbox() {
 
     const targetThread = selectedConversation.threads.find((thread) => thread.gmail_thread_id)
     if (!targetThread) {
-      setError('Nao foi possivel encontrar o thread Gmail para responder.')
+      setError('Could not find the Gmail thread to reply to.')
       return
     }
 
@@ -701,7 +701,7 @@ export function EmailInbox() {
     const token = sessionData.session?.access_token
 
     if (!token) {
-      setError('Sessao expirada. Faca login novamente.')
+      setError('Session expired. Please sign in again.')
       setSendingReply(false)
       return
     }
@@ -719,7 +719,7 @@ export function EmailInbox() {
     const json = (await response.json()) as { ok?: boolean; error?: string }
 
     if (!response.ok || !json.ok) {
-      setError(json.error || 'Nao foi possivel enviar a resposta.')
+      setError(json.error || 'Could not send the reply.')
       setSendingReply(false)
       return
     }
@@ -732,7 +732,7 @@ export function EmailInbox() {
       ),
     )
     setReplyDraft('')
-    setNotice('Resposta enviada. IA pausada para este lead — retome pelo painel lateral quando quiser.')
+    setNotice('Reply sent. AI paused for this lead — resume from the side panel when ready.')
     await loadThreads()
     setSendingReply(false)
   }
@@ -740,9 +740,9 @@ export function EmailInbox() {
   if (!workspaceLoading && !workspace) {
     return (
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold text-[#B98A1D]">Conversas</p>
-        <h1 className="mt-2 text-2xl font-bold text-[#2C3E50]">Crie um workspace primeiro</h1>
-        <p className="mt-2 text-sm text-slate-500">O inbox usa threads por workspace.</p>
+        <p className="text-sm font-semibold text-[#B98A1D]">Inbox</p>
+        <h1 className="mt-2 text-2xl font-bold text-[#2C3E50]">Create a workspace first</h1>
+        <p className="mt-2 text-sm text-slate-500">Inbox threads are scoped to your workspace.</p>
       </section>
     )
   }
@@ -756,7 +756,7 @@ export function EmailInbox() {
             <div>
               <h1 className="flex items-center gap-2 text-base font-bold text-slate-950">
                 <MessageSquareText className="h-4 w-4" />
-                Conversas
+                Inbox
               </h1>
             </div>
             <div className="flex shrink-0 gap-2">
@@ -767,7 +767,7 @@ export function EmailInbox() {
                 className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-[#2C3E50] px-2.5 text-[11px] font-bold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 <CloudDownload className={`h-3.5 w-3.5 ${syncing ? 'animate-pulse' : ''}`} />
-                {syncing ? 'Sincronizando...' : 'Sincronizar'}
+                {syncing ? 'Syncing...' : 'Sync'}
               </button>
             </div>
           </div>
@@ -789,18 +789,18 @@ export function EmailInbox() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar por nome, email ou empresa..."
+              placeholder="Search by name, email or company..."
               className="w-full border-0 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
             />
           </label>
 
-          <p className="mt-3 text-[10px] font-bold uppercase text-slate-500">Filtros</p>
+          <p className="mt-3 text-[10px] font-bold uppercase text-slate-500">Filters</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {[
-              ['all', 'Todas Conversas'],
-              ['favorites', 'Favoritos'],
-              ['replied', 'Responderam'],
-              ['unanswered', 'Sem resposta'],
+              ['all', 'All Conversations'],
+              ['favorites', 'Favorites'],
+              ['replied', 'Replied'],
+              ['unanswered', 'No reply'],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -824,13 +824,13 @@ export function EmailInbox() {
 
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <p className="p-4 text-sm text-slate-500">Carregando conversas...</p>
+            <p className="p-4 text-sm text-slate-500">Loading conversations...</p>
           ) : null}
 
           {!loading && filteredConversations.length === 0 ? (
             <div className="p-4">
               <div className="rounded-lg border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
-                Envie um template real no review da campanha para criar a primeira conversa.
+                Send a real template from the campaign review to create the first conversation.
               </div>
             </div>
           ) : null}
@@ -882,7 +882,7 @@ export function EmailInbox() {
                           hasReply ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'
                         }`}
                       >
-                        {hasReply ? 'Respondeu' : 'Sem resposta'}
+                        {hasReply ? 'Replied' : 'No reply'}
                       </span>
                       <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-700">
                         {count} msg
@@ -898,7 +898,7 @@ export function EmailInbox() {
                       ? 'text-[#B98A1D] hover:bg-yellow-50'
                       : 'text-slate-300 hover:bg-slate-100 hover:text-[#B98A1D]'
                   }`}
-                  aria-label={favorite ? 'Remover dos favoritos' : 'Marcar como favorito'}
+                  aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                   <Star className={`h-4 w-4 ${favorite ? 'fill-current' : ''}`} />
                 </button>
@@ -919,7 +919,7 @@ export function EmailInbox() {
                   type="button"
                   onClick={() => setMobileView('list')}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 min-[700px]:hidden"
-                  aria-label="Voltar para lista"
+                  aria-label="Back to list"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </button>
@@ -935,19 +935,19 @@ export function EmailInbox() {
                   </p>
                   {selectedSubject ? (
                     <p className="mt-1 truncate text-xs font-semibold normal-case text-slate-500">
-                      Assunto: <span className="font-medium text-slate-700">{selectedSubject}</span>
+                      Subject: <span className="font-medium text-slate-700">{selectedSubject}</span>
                     </p>
                   ) : null}
                 </div>
               </div>
               <span className="hidden text-xs font-semibold text-slate-400 md:inline">
                 {selectedConversation.messages.length > 0
-                  ? `Total de mensagens: ${selectedConversation.messages.length}`
-                  : 'Sem mensagens'}
+                  ? `Total messages: ${selectedConversation.messages.length}`
+                  : 'No messages'}
               </span>
             </div>
           ) : (
-            <h2 className="text-base font-bold text-[#2C3E50]">Nenhuma conversa selecionada</h2>
+            <h2 className="text-base font-bold text-[#2C3E50]">No conversation selected</h2>
           )}
         </header>
 
@@ -958,7 +958,7 @@ export function EmailInbox() {
                 <div className="mx-auto mt-20 max-w-md rounded-lg border border-dashed border-slate-300 bg-white/80 p-6 text-center">
                   <MessageSquareText className="mx-auto h-8 w-8 text-slate-400" />
                   <p className="mt-3 text-sm font-semibold text-[#2C3E50]">
-                    Thread criada, sem mensagens sincronizadas.
+                    Thread created, no messages synced yet.
                   </p>
                 </div>
               ) : null}
@@ -1007,7 +1007,7 @@ export function EmailInbox() {
                               : 'rounded-tl-sm bg-white text-[#1F2D3D]'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap">{displayBody || 'Mensagem sem corpo.'}</p>
+                          <p className="whitespace-pre-wrap">{displayBody || 'Empty message.'}</p>
                         </div>
                         <time className={`mt-1 block text-[10px] text-slate-500 ${outbound ? 'text-right' : ''}`}>
                           {formatMessageTime(message.sent_at || message.created_at)}
@@ -1021,7 +1021,7 @@ export function EmailInbox() {
           ) : (
             <div className="mx-auto mt-20 max-w-md rounded-lg border border-dashed border-slate-300 bg-white/80 p-6 text-center">
               <Mail className="mx-auto h-8 w-8 text-slate-400" />
-              <p className="mt-3 text-sm font-semibold text-[#2C3E50]">Nenhuma conversa ainda.</p>
+              <p className="mt-3 text-sm font-semibold text-[#2C3E50]">No conversations yet.</p>
             </div>
           )}
         </div>
@@ -1035,14 +1035,14 @@ export function EmailInbox() {
                 }`}
               />
               {selectedConversation?.ai_enabled
-                ? 'IA Ativa — responde automaticamente'
-                : 'IA pausada — somente resposta manual'}
+                ? 'AI Active — replies automatically'
+                : 'AI paused — manual reply only'}
             </div>
           </div>
           <div className="px-4 pb-3 pt-2">
             {selectedConversation?.ai_enabled ? (
               <p className="mb-2 text-[11px] text-slate-400">
-                Ao responder manualmente a IA sera pausada para este lead.
+                Sending a manual reply will pause AI for this lead.
               </p>
             ) : null}
             <div className="flex items-end gap-2">
@@ -1057,8 +1057,8 @@ export function EmailInbox() {
                 }}
                 placeholder={
                   selectedConversation
-                    ? 'Escreva uma resposta... (Ctrl+Enter para enviar)'
-                    : 'Selecione uma conversa'
+                    ? 'Write a reply... (Ctrl+Enter to send)'
+                    : 'Select a conversation'
                 }
                 disabled={!selectedConversation || sendingReply}
                 rows={2}
@@ -1071,7 +1071,7 @@ export function EmailInbox() {
                 className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md bg-[#2C3E50] px-4 text-sm font-bold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
               >
                 <SendHorizontal className="h-4 w-4" />
-                {sendingReply ? 'Enviando...' : 'Enviar'}
+                {sendingReply ? 'Sending...' : 'Send'}
               </button>
             </div>
           </div>
@@ -1102,7 +1102,7 @@ export function EmailInbox() {
                     ? 'text-[#B98A1D] hover:bg-yellow-50'
                     : 'text-slate-300 hover:bg-slate-100 hover:text-[#B98A1D]'
                 }`}
-                aria-label="Favoritar conversa"
+                aria-label="Favorite conversation"
               >
                 <Star
                   className={`h-4 w-4 ${
@@ -1122,7 +1122,7 @@ export function EmailInbox() {
             <section>
               <h3 className="flex items-center gap-2 text-sm font-bold text-[#2C3E50]">
                 <UserRound className="h-4 w-4" />
-                Informacoes
+                Details
               </h3>
               <dl className="mt-3 grid gap-3 text-sm text-slate-700">
                 <div className="flex gap-2">
@@ -1135,35 +1135,35 @@ export function EmailInbox() {
                 <div className="flex gap-2">
                   <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                   <div>
-                    <dt className="text-xs text-slate-500">Empresa</dt>
-                    <dd>{selectedLead.company || 'Nao informada'}</dd>
+                    <dt className="text-xs text-slate-500">Company</dt>
+                    <dd>{selectedLead.company || 'Not provided'}</dd>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                   <div>
-                    <dt className="text-xs text-slate-500">Cargo</dt>
-                    <dd>{selectedLead.title || 'Nao informado'}</dd>
+                    <dt className="text-xs text-slate-500">Title</dt>
+                    <dd>{selectedLead.title || 'Not provided'}</dd>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <Mail className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                   <div>
-                    <dt className="text-xs text-slate-500">Remetente conectado</dt>
-                    <dd className="break-all">{connectedGoogleEmail || 'Nao conectada'}</dd>
+                    <dt className="text-xs text-slate-500">Connected sender</dt>
+                    <dd className="break-all">{connectedGoogleEmail || 'Not connected'}</dd>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <Tag className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                   <div>
-                    <dt className="text-xs text-slate-500">Fonte</dt>
+                    <dt className="text-xs text-slate-500">Source</dt>
                     <dd>CSV</dd>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <Globe className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                   <div className="min-w-0">
-                    <dt className="text-xs text-slate-500">Site</dt>
+                    <dt className="text-xs text-slate-500">Website</dt>
                     <dd className="break-all">
                       {website ? (
                         <a
@@ -1176,7 +1176,7 @@ export function EmailInbox() {
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        'Nao informado'
+                        'Not provided'
                       )}
                     </dd>
                   </div>
@@ -1197,7 +1197,7 @@ export function EmailInbox() {
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        'Nao informado'
+                        'Not provided'
                       )}
                     </dd>
                   </div>
@@ -1211,14 +1211,14 @@ export function EmailInbox() {
                 Status
               </h3>
               <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-                <span className="text-slate-600">Status Funil</span>
+                <span className="text-slate-600">Funnel Status</span>
                 <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${statusClasses(selectedLead.status)}`}>
                   {statusLabel(selectedLead.status)}
                 </span>
               </div>
               <p className="mt-4 flex items-center gap-2 text-xs text-slate-500">
                 <CalendarClock className="h-4 w-4" />
-                Ultima mensagem: {formatDate(selectedConversation.last_message_at || selectedConversation.created_at)}
+                Last message: {formatDate(selectedConversation.last_message_at || selectedConversation.created_at)}
               </p>
             </section>
 
@@ -1234,10 +1234,10 @@ export function EmailInbox() {
             >
               <span className="flex items-center gap-2">
                 {selectedConversation.ai_enabled ? <Bot className="h-4 w-4" /> : <PauseCircle className="h-4 w-4" />}
-                {saving ? 'Salvando...' : selectedConversation.ai_enabled ? 'IA Ativa' : 'IA Pausada'}
+                {saving ? 'Saving...' : selectedConversation.ai_enabled ? 'AI Active' : 'AI Paused'}
               </span>
               <span className="text-xs font-medium">
-                {selectedConversation.ai_enabled ? 'Clique para desativar' : 'Clique para ativar'}
+                {selectedConversation.ai_enabled ? 'Click to disable' : 'Click to enable'}
               </span>
             </button>
 
@@ -1247,13 +1247,13 @@ export function EmailInbox() {
               className="flex w-full items-center justify-center gap-2 rounded-none bg-slate-100 px-4 py-4 text-sm font-bold text-slate-600"
             >
               <UserCheck className="h-4 w-4" />
-              Agendar Reuniao
+              Schedule Meeting
             </button>
 
             <section className="border-t border-slate-200 pt-5">
               <h3 className="flex items-center gap-2 text-sm font-bold text-[#2C3E50]">
                 <NotebookPen className="h-4 w-4" />
-                Anotacoes
+                Notes
               </h3>
               {editingNotes ? (
                 <div className="mt-3 grid gap-2">
@@ -1261,7 +1261,7 @@ export function EmailInbox() {
                     value={notesDraft}
                     onChange={(event) => setNotesDraft(event.target.value)}
                     rows={4}
-                    placeholder="Escreva uma anotacao sobre esse lead..."
+                    placeholder="Write a note about this lead..."
                     className="w-full resize-none rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-[#2C3E50] focus:ring-2 focus:ring-[#2C3E50]/10"
                   />
                   <div className="flex gap-2">
@@ -1272,7 +1272,7 @@ export function EmailInbox() {
                       className="inline-flex items-center gap-2 rounded-md bg-[#2C3E50] px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       <Save className="h-3.5 w-3.5" />
-                      {savingNotes ? 'Salvando...' : 'Salvar'}
+                      {savingNotes ? 'Saving...' : 'Save'}
                     </button>
                     <button
                       type="button"
@@ -1282,21 +1282,21 @@ export function EmailInbox() {
                       }}
                       className="rounded-md border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600"
                     >
-                      Cancelar
+                      Cancel
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="mt-3">
                   <p className="rounded-md bg-slate-50 px-3 py-3 text-sm text-slate-600">
-                    {selectedLeadNotes || 'Nenhuma anotacao ainda.'}
+                    {selectedLeadNotes || 'No notes yet.'}
                   </p>
                   <button
                     type="button"
                     onClick={() => setEditingNotes(true)}
                     className="mt-2 text-xs font-bold text-blue-700 hover:underline"
                   >
-                    Editar
+                    Edit
                   </button>
                 </div>
               )}
@@ -1306,7 +1306,7 @@ export function EmailInbox() {
               <section className="border-t border-slate-200 pt-5">
                 <h3 className="flex items-center gap-2 text-sm font-bold text-[#2C3E50]">
                   <Building2 className="h-4 w-4" />
-                  Campos extras
+                  Extra fields
                 </h3>
                 <div className="mt-3 grid gap-2">
                   {extraFieldEntries.map(([key, value]) => (
@@ -1323,7 +1323,7 @@ export function EmailInbox() {
             })()}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Selecione uma conversa para ver o lead.</p>
+          <p className="text-sm text-slate-500">Select a conversation to view the lead.</p>
         )}
       </aside>
     </div>

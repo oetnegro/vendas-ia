@@ -8,18 +8,18 @@ import { getSupabaseBrowserClient } from '@/lib/supabase-client'
 import { useWorkspace } from '@/lib/use-workspace'
 
 const timezoneOptions = [
-  { value: 'America/Sao_Paulo', label: 'Brasil (Sao Paulo)' },
-  { value: 'America/New_York', label: 'EUA Leste (New York)' },
-  { value: 'America/Chicago', label: 'EUA Central (Chicago)' },
-  { value: 'America/Denver', label: 'EUA Mountain (Denver)' },
-  { value: 'America/Los_Angeles', label: 'EUA Pacifico (Los Angeles)' },
-  { value: 'Europe/London', label: 'Europa Ocidental (Londres)' },
-  { value: 'Europe/Berlin', label: 'Europa Central (Berlim)' },
+  { value: 'America/Sao_Paulo', label: 'Brazil (São Paulo)' },
+  { value: 'America/New_York', label: 'US Eastern (New York)' },
+  { value: 'America/Chicago', label: 'US Central (Chicago)' },
+  { value: 'America/Denver', label: 'US Mountain (Denver)' },
+  { value: 'America/Los_Angeles', label: 'US Pacific (Los Angeles)' },
+  { value: 'Europe/London', label: 'Western Europe (London)' },
+  { value: 'Europe/Berlin', label: 'Central Europe (Berlin)' },
 ]
 
 const campaignSuggestions = {
   b2b_services: {
-    label: 'Servicos B2B',
+    label: 'B2B Services',
     name: 'Outbound consultivo B2B',
     objective: 'Gerar reunioes de diagnostico com decisores B2B que tenham dor comercial clara.',
     dailyLimit: 30,
@@ -37,7 +37,7 @@ const campaignSuggestions = {
     timezone: 'America/Sao_Paulo',
   },
   agency: {
-    label: 'Agencias',
+    label: 'Agencies',
     name: 'Outbound agencias',
     objective: 'Marcar conversas com donos de agencias interessados em melhorar prospeccao e previsibilidade.',
     dailyLimit: 25,
@@ -46,7 +46,7 @@ const campaignSuggestions = {
     timezone: 'America/Sao_Paulo',
   },
   intl: {
-    label: 'Internacional (EUA/Europa)',
+    label: 'International (US/Europe)',
     name: 'Outbound internacional',
     objective: 'Prospectar decisores nos EUA ou Europa com abordagem direta e objetiva.',
     dailyLimit: 20,
@@ -106,7 +106,7 @@ export function CampaignBuilder() {
     if (submittingRef.current) return
 
     if (!workspace) {
-      setError('Crie um workspace antes de criar campanha.')
+      setError('Create a workspace before creating a campaign.')
       return
     }
 
@@ -151,7 +151,7 @@ export function CampaignBuilder() {
 
     if (campaignError || !campaign) {
       submittingRef.current = false
-      setError(campaignError?.message || 'Nao foi possivel criar a campanha.')
+      setError(campaignError?.message || 'Could not create the campaign.')
       return
     }
 
@@ -161,15 +161,15 @@ export function CampaignBuilder() {
   if (!workspaceLoading && !workspace) {
     return (
       <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <h1 className="text-2xl font-semibold text-[#2C3E50]">Configure o agente primeiro</h1>
+        <h1 className="text-2xl font-semibold text-[#2C3E50]">Set up the agent first</h1>
         <p className="mt-2 text-sm text-slate-600">
-          A campanha precisa de workspace e contexto de IA.
+          A campaign requires a workspace and AI context.
         </p>
         <Link
           href="/setup"
           className="mt-5 inline-flex rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white"
         >
-          Ir para configuração
+          Go to setup
         </Link>
       </section>
     )
@@ -179,29 +179,29 @@ export function CampaignBuilder() {
     <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
       <aside className="space-y-4">
         <div>
-          <p className="text-sm font-semibold text-[#B98A1D]">Campanhas</p>
-          <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">Nova campanha</h1>
+          <p className="text-sm font-semibold text-[#B98A1D]">Campaigns</p>
+          <h1 className="mt-2 text-3xl font-bold text-[#2C3E50]">New campaign</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Defina objetivo, volume diário e janelas de envio. A campanha nasce em rascunho.
+            Set objective, daily volume, and send windows. The campaign starts as a draft.
           </p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <SlidersHorizontal className="h-5 w-5 text-[#B98A1D]" />
-          <h2 className="mt-3 text-sm font-semibold text-[#2C3E50]">Boas praticas anti-spam</h2>
+          <h2 className="mt-3 text-sm font-semibold text-[#2C3E50]">Anti-spam best practices</h2>
           <ul className="mt-2 space-y-1.5 text-xs leading-5 text-slate-600">
-            <li>• 20–30/dia para contas novas, ate 50 para contas aquecidas</li>
-            <li>• 3–5 steps de cadencia é o padrao de qualidade</li>
-            <li>• Espaco de 4–7 min entre envios evita rajadas</li>
-            <li>• IA para automaticamente se o lead responder</li>
+            <li>• 20–30/day for new accounts, up to 50 for warmed accounts</li>
+            <li>• 3–5 cadence steps is the quality standard</li>
+            <li>• 4–7 min spacing between sends prevents bursts</li>
+            <li>• AI stops automatically when a lead replies</li>
           </ul>
         </div>
 
         <div className="rounded-xl border border-[#F4D58D]/60 bg-[#F4D58D]/10 p-5 shadow-sm">
           <Sparkles className="h-5 w-5 text-[#B98A1D]" />
-          <h2 className="mt-3 text-sm font-semibold text-[#2C3E50]">Sugestao por setor</h2>
+          <h2 className="mt-3 text-sm font-semibold text-[#2C3E50]">Suggestion by sector</h2>
           <p className="mt-1.5 text-xs leading-5 text-slate-700">
-            Preenche objetivo, volume recomendado e nome.
+            Fills in objective, recommended volume, and name.
           </p>
           <select
             value={sector}
@@ -220,7 +220,7 @@ export function CampaignBuilder() {
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2C3E50] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#34495E]"
           >
             <Lightbulb className="h-4 w-4" />
-            Aplicar sugestao
+            Apply suggestion
           </button>
         </div>
       </aside>
@@ -228,24 +228,24 @@ export function CampaignBuilder() {
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="grid gap-5">
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Nome da campanha</span>
+            <span className="text-sm font-semibold text-slate-700">Campaign name</span>
             <input
               required
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Ex: Outbound SaaS B2B - Junho"
+              placeholder="e.g. Outbound SaaS B2B - June"
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Objetivo</span>
+            <span className="text-sm font-semibold text-slate-700">Objective</span>
             <textarea
               required
               rows={3}
               value={objective}
               onChange={(event) => setObjective(event.target.value)}
-              placeholder="Ex: gerar reunioes de diagnostico com diretores comerciais de empresas B2B."
+              placeholder="e.g. Book diagnostic meetings with B2B commercial directors."
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-[#F4D58D] focus:ring-2 focus:ring-[#F4D58D]/30"
             />
           </label>
@@ -253,8 +253,8 @@ export function CampaignBuilder() {
           {/* Volume */}
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Envios por dia</span>
-              <p className="text-xs text-slate-500">Recomendado: 25–40 para contas ativas</p>
+              <span className="text-sm font-semibold text-slate-700">Sends per day</span>
+              <p className="text-xs text-slate-500">Recommended: 25–40 for active accounts</p>
               <input
                 type="number"
                 min={1}
@@ -266,8 +266,8 @@ export function CampaignBuilder() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-semibold text-slate-700">Intervalo entre envios</span>
-              <p className="text-xs text-slate-500">Minutos entre cada email</p>
+              <span className="text-sm font-semibold text-slate-700">Spacing between sends</span>
+              <p className="text-xs text-slate-500">Minutes between each email</p>
               <input
                 type="number"
                 min={2}
@@ -281,7 +281,7 @@ export function CampaignBuilder() {
 
           {/* Timezone */}
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Timezone dos leads</span>
+            <span className="text-sm font-semibold text-slate-700">Leads timezone</span>
             <select
               value={timezone}
               onChange={(event) => setTimezone(event.target.value)}
@@ -301,10 +301,10 @@ export function CampaignBuilder() {
               <div>
                 <span className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                   <CalendarClock className="h-4 w-4 text-[#B98A1D]" />
-                  Janelas de envio
+                  Send windows
                 </span>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  Horários em que os emails podem ser disparados (até 3)
+                  Times when emails can be dispatched (up to 3)
                 </p>
               </div>
               {sendWindows.length < MAX_WINDOWS && (
@@ -314,7 +314,7 @@ export function CampaignBuilder() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[#2C3E50] hover:bg-slate-50"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  Adicionar janela
+                  Add window
                 </button>
               )}
             </div>
@@ -345,7 +345,7 @@ export function CampaignBuilder() {
             </div>
 
             <p className="mt-2 rounded-lg border border-[#F4D58D]/60 bg-[#FFF9E8] px-3 py-2 text-xs text-slate-600">
-              O limite diário é distribuído entre as janelas. Com {sendWindows.length} janela{sendWindows.length > 1 ? 's' : ''}, cada uma processa até <strong>{Math.ceil(dailyLimit / sendWindows.length)}</strong> envios com intervalo de {spacingMinutes} min.
+              The daily limit is spread across windows. With {sendWindows.length} window{sendWindows.length > 1 ? 's' : ''}, each processes up to <strong>{Math.ceil(dailyLimit / sendWindows.length)}</strong> sends with a {spacingMinutes} min interval.
             </p>
           </div>
 
@@ -362,7 +362,7 @@ export function CampaignBuilder() {
               className="inline-flex items-center gap-2 rounded-lg bg-[#2C3E50] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#34495E] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Send className="h-4 w-4" />
-              {loading ? 'Criando...' : 'Criar campanha'}
+              {loading ? 'Creating...' : 'Create campaign'}
             </button>
           </div>
         </div>

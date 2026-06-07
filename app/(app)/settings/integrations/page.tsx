@@ -1,7 +1,7 @@
 import { McpIntegrationPanel } from '@/components/settings/mcp-integration-panel'
 
 export const metadata = {
-  title: 'Integração MCP | Vendas+IA App',
+  title: 'MCP Integration | Vendas+IA',
 }
 
 export default function IntegrationsSettingsPage() {
