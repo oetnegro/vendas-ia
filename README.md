@@ -20,19 +20,24 @@
 
 ## Architecture
 
-```
- Web app (Next.js/Vercel)  +  Claude / Codex / Cursor ──MCP──┐
-                                                             ▼
-        Vendas+IA MCP Server (TS) ── scoped, revocable, rate-limited, audited token
-                                                             │
-         ┌───────────────────────────────────────────────────┤
-         ▼ (deterministic, TS)                                ▼ (the brain, Google ADK)
-   Cadence engine + Gmail send/sync                    ADK Agent (Python, Cloud Run)
-   (keeps the live pilot running)                      • classifies reply intent
-         │                                             • extracts the meeting window
-         │   Google OAuth token stays in TS ───────────┘  (token never enters Python)
-         ▼
-   Calendar event created by TS  ·  Supabase (multi-tenant RLS)  ·  Gemini  ·  Cloud Scheduler
+```mermaid
+flowchart TD
+    A["🌐 Web app<br/>(Next.js / Vercel)"] -->|intent| C
+    B["🤖 Claude / Codex / Cursor"] -->|MCP| C
+    C["🔐 Vendas+IA MCP Server (TS)<br/><i>scoped · revocable · rate-limited · audited token</i>"]
+
+    C --> D["⚙️ Cadence engine + Gmail send/sync<br/>(deterministic, TS — keeps the live pilot running)"]
+    C --> E["🧠 ADK Agent (Python, Cloud Run)<br/>• classifies reply intent<br/>• extracts the meeting window"]
+
+    E -->|decides <b>what</b> to do| F["📅 Calendar event created by TS<br/><i>Google OAuth token never leaves TS</i>"]
+    D --> F
+
+    F --> G["Supabase (multi-tenant RLS) · Gemini · Cloud Scheduler"]
+
+    classDef brain fill:#e8f0fe,stroke:#4285f4,stroke-width:2px;
+    classDef sec fill:#fef7e0,stroke:#f9ab00,stroke-width:2px;
+    class E brain;
+    class C sec;
 ```
 
 The ADK reply agent is **additive and behind a feature flag** (`USE_ADK_REPLY`), with a TypeScript engine as fallback, so the live pilot never breaks. The user's Google OAuth token **never leaves the TS backend** and is never passed into the Python agent — the agent decides *what* to do, the backend does it.
