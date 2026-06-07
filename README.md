@@ -5,7 +5,7 @@
 **Vendas+IA** (Portuguese for "Sales+AI") is an autonomous B2B email prospecting agent built for the people who build the product but aren't salespeople: indie devs, vibe coders, SaaS founders, and domain experts who need their first customers.
 
 - 🌐 **Live app:** https://www.vendasmaisia.com
-- 🎥 **Demo video:** _(add link)_
+- 🎥 **Demo video:** https://youtu.be/aKX7wyC7MK4
 - 🏆 **Submission:** Google for Startups AI Agents Challenge — Track 1 (Build)
 
 ---
