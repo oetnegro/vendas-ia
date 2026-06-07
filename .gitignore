@@ -55,3 +55,8 @@ __pycache__/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Docs internos de estrategia (nao publicar)
+product-brief.md
+landing-page-brief.md
+HACKATHON.md
