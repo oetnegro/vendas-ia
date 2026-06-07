@@ -140,6 +140,9 @@ export async function syncWorkspaceGmail({
         .update({ status: 'replied' })
         .eq('id', leadId)
         .eq('workspace_id', workspaceId)
+        .neq('status', 'meeting_booked')
+        .neq('status', 'negative')
+        .neq('status', 'opted_out')
     }
 
     syncedMessages += messageRows.length
