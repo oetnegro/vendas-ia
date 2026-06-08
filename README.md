@@ -7,6 +7,16 @@
 - 🌐 **Live app:** https://www.vendasmaisia.com
 - 🎥 **Demo video:** https://youtu.be/aKX7wyC7MK4
 - 🏆 **Submission:** Google for Startups AI Agents Challenge — Track 1 (Build)
+- 🔍 **Reviewers start here:** [`REVIEWING.md`](REVIEWING.md) — a 3-step path to see the agent work end-to-end.
+
+---
+
+## 🔍 For reviewers
+
+Want to verify the claims in this repo? Two fast paths:
+
+1. **Run the live agent yourself** — follow [`REVIEWING.md`](REVIEWING.md): sign up, generate a lead list from one sentence, then drive the funnel from Claude/Cursor via our published MCP server. ~5 minutes, no setup.
+2. **Read the multi-agent brain** — the reply pipeline is a real `SequentialAgent` of three specialists in [`services/adk-agent/`](services/adk-agent/) ([its README](services/adk-agent/README.md) walks the 3 sub-agents and how to read their Cloud Logging trace). Evals methodology + honesty notes in [`evals/report.md`](evals/report.md).
 
 ---
 
@@ -27,7 +37,7 @@ flowchart TD
     C["🔐 Vendas+IA MCP Server (TS)<br/><i>scoped · revocable · rate-limited · audited token</i>"]
 
     C --> D["⚙️ Cadence engine + Gmail send/sync<br/>(deterministic, TS — keeps the live pilot running)"]
-    C --> E["🧠 ADK Agent (Python, Cloud Run)<br/>• classifies reply intent<br/>• extracts the meeting window"]
+    C --> E["🧠 ADK reply_pipeline (Python, Cloud Run)<br/><b>SequentialAgent · 3 specialists</b><br/>• conversation_classifier → intent<br/>• meeting_extractor → ISO window<br/>• reply_drafter → reply in lead's language"]
 
     E -->|decides <b>what</b> to do| F["📅 Calendar event created by TS<br/><i>Google OAuth token never leaves TS</i>"]
     D --> F
