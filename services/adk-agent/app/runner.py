@@ -13,8 +13,14 @@ from __future__ import annotations
 import json
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
+
+# Workspace timezone for resolving relative dates ("proxima terca", "amanha") and
+# for emitting meeting windows with the right offset. São Paulo is a fixed UTC-3:
+# Brazil abolished daylight saving time in 2019, so a constant offset is correct
+# year-round and needs no system tz database (the slim image ships without one).
+WORKSPACE_TZ = timezone(timedelta(hours=-3))
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -125,7 +131,7 @@ async def run_reply_agent(request: DecisionRequest) -> EmailAgentDecision:
             "Thread sem mensagem inbound.",
         )
 
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(WORKSPACE_TZ).isoformat()
     session_id = uuid.uuid4().hex
     await _session_service.create_session(
         app_name=APP_NAME,
