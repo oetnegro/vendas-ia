@@ -1,8 +1,11 @@
-"""Runs the reply agent for one decision request and returns an EmailAgentDecision.
+"""Runs the multi-agent reply pipeline for one request and returns an EmailAgentDecision.
 
-Mirrors the prompt assembly and output normalization of
-`generateEmailAgentDecision()` in `lib/ai/email-agent.ts` so the JSON contract is
-identical and the TS engine can swap implementations transparently.
+The root `SequentialAgent` (see `agent.py`) runs three specialists in order:
+ConversationClassifier -> MeetingExtractor -> ReplyDrafter. Each writes its
+structured output to session state; this runner reads the final `decision`,
+reconciles the proposed meeting window, and normalizes the output so the JSON
+contract is identical to `generateEmailAgentDecision()` in `lib/ai/email-agent.ts`.
+The TS engine can swap implementations transparently.
 """
 
 from __future__ import annotations
@@ -11,6 +14,7 @@ import json
 import re
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -25,6 +29,16 @@ APP_NAME = "vendas-ia-reply"
 _agent = build_reply_agent()
 _session_service = InMemorySessionService()
 _runner = Runner(app_name=APP_NAME, agent=_agent, session_service=_session_service)
+
+
+def _valid_iso(value: Optional[str]) -> bool:
+    if not value:
+        return False
+    try:
+        datetime.fromisoformat(value)
+        return True
+    except ValueError:
+        return False
 
 
 def _normalize_subject(subject: str | None) -> str:
@@ -54,10 +68,9 @@ def _latest_subject(messages: list[Message], inbound: Message | None) -> str | N
     return None
 
 
-def _build_prompt(request: DecisionRequest) -> str:
+def _build_prompt(request: DecisionRequest, now_iso: str) -> str:
     agent = request.agent
     lead = request.lead
-    now_iso = datetime.now(timezone.utc).isoformat()
     full_name = " ".join(filter(None, [lead.first_name, lead.last_name])) or "Nao informado"
 
     history = "\n\n---\n\n".join(
@@ -112,28 +125,58 @@ async def run_reply_agent(request: DecisionRequest) -> EmailAgentDecision:
             "Thread sem mensagem inbound.",
         )
 
+    now_iso = datetime.now(timezone.utc).isoformat()
     session_id = uuid.uuid4().hex
-    await _session_service.create_session(app_name=APP_NAME, user_id="engine", session_id=session_id)
-    message = types.Content(role="user", parts=[types.Part(text=_build_prompt(request))])
+    await _session_service.create_session(
+        app_name=APP_NAME,
+        user_id="engine",
+        session_id=session_id,
+        state={"now_iso": now_iso},
+    )
+    message = types.Content(role="user", parts=[types.Part(text=_build_prompt(request, now_iso))])
 
     steps: list[str] = []
     async for event in _runner.run_async(user_id="engine", session_id=session_id, new_message=message):
-        for part in (event.content.parts if event.content else []) or []:
-            if getattr(part, "function_call", None):
-                steps.append(part.function_call.name)
+        if event.author and event.author not in steps:
+            steps.append(event.author)
 
     session = await _session_service.get_session(
         app_name=APP_NAME, user_id="engine", session_id=session_id
     )
-    raw = session.state.get("decision") if session else None
-    log_trace("agent_run", {"steps": steps, "lead_email": request.lead.email})
+    state = session.state if session else {}
+    raw = state.get("decision")
+    log_trace(
+        "pipeline_run",
+        {
+            "steps": steps,
+            "lead_email": request.lead.email,
+            "classification": state.get("classification"),
+            "meeting": state.get("meeting"),
+        },
+    )
 
     if not raw:
-        # Agent never finalized — signal failure so the TS side falls back.
-        raise RuntimeError("Agent did not produce a decision (submit_decision not called).")
+        # ReplyDrafter never finalized — signal failure so the TS side falls back.
+        raise RuntimeError("Pipeline did not produce a decision (no 'decision' in state).")
 
-    # Prefer the validated meeting window captured by the tool, if present.
-    window = (session.state.get("meeting_window") if session else None) or {}
+    # Reconcile the meeting window: trust MeetingExtractor's validated proposal.
+    # Only a confirmed window with valid ISO timestamps is allowed to book.
+    meeting = state.get("meeting") or {}
+    window_valid = bool(
+        meeting.get("has_meeting")
+        and _valid_iso(meeting.get("meeting_start_iso"))
+        and _valid_iso(meeting.get("meeting_end_iso"))
+    )
+
+    lead_status = raw.get("lead_status", "replied")
+    meeting_start_iso = None
+    meeting_end_iso = None
+    if window_valid:
+        meeting_start_iso = meeting["meeting_start_iso"]
+        meeting_end_iso = meeting["meeting_end_iso"]
+    elif lead_status == "meeting_booked":
+        # Drafter claimed a booking the extractor did not confirm — don't book.
+        lead_status = "interested"
 
     decision = EmailAgentDecision(
         action=raw.get("action", "reply"),
@@ -142,10 +185,10 @@ async def run_reply_agent(request: DecisionRequest) -> EmailAgentDecision:
         summary=raw.get("summary", ""),
         subject=_normalize_subject(raw.get("subject") or subject),
         body=(raw.get("body") or "").strip(),
-        lead_status=raw.get("lead_status", "replied"),
+        lead_status=lead_status,
         follow_up_days=raw.get("follow_up_days"),
-        meeting_start_iso=raw.get("meeting_start_iso") or window.get("meeting_start_iso"),
-        meeting_end_iso=raw.get("meeting_end_iso") or window.get("meeting_end_iso"),
+        meeting_start_iso=meeting_start_iso,
+        meeting_end_iso=meeting_end_iso,
         reasoning=raw.get("reasoning", ""),
     )
     return decision

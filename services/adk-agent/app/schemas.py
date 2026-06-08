@@ -30,6 +30,26 @@ LeadStatus = Literal[
 ]
 
 
+class Classification(BaseModel):
+    """ConversationClassifier output — the lead's intent for this inbound reply."""
+
+    intent: Intent
+    confidence: float = Field(ge=0.0, le=1.0)
+    reasoning: str
+
+
+class MeetingWindow(BaseModel):
+    """MeetingExtractor output — a proposed meeting window, if one was confirmed.
+
+    The window is only a proposal. The TypeScript engine materializes the real
+    Google Calendar event with the user's OAuth token; no token ever reaches Python.
+    """
+
+    has_meeting: bool
+    meeting_start_iso: Optional[str] = None
+    meeting_end_iso: Optional[str] = None
+
+
 class AgentProfile(BaseModel):
     name: str
     business_context: Optional[str] = None
