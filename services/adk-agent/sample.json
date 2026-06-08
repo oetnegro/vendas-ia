@@ -1,0 +1,29 @@
+{
+  "agent": {
+    "name": "VetDoc Pro",
+    "business_context": "Software de gestao para clinicas veterinarias.",
+    "campaign_goal": "Marcar uma reuniao qualificada de 30 minutos.",
+    "common_objections": "preco, falta de tempo, ja usa outro sistema"
+  },
+  "lead": {
+    "email": "maria@acme.com",
+    "first_name": "Maria",
+    "last_name": "Silva",
+    "company": "Acme Vet",
+    "title": "Dona da clinica"
+  },
+  "messages": [
+    {
+      "direction": "outbound",
+      "subject": "VetDoc Pro",
+      "body_text": "Oi Maria, posso te mostrar como o VetDoc Pro ajuda a sua clinica a organizar prontuarios e agenda?",
+      "sent_at": "2026-06-05T10:00:00-03:00"
+    },
+    {
+      "direction": "inbound",
+      "subject": "Re: VetDoc Pro",
+      "body_text": "Tenho interesse sim! Consegue na proxima terca que vem as 15h?",
+      "sent_at": "2026-06-07T21:30:00-03:00"
+    }
+  ]
+}
